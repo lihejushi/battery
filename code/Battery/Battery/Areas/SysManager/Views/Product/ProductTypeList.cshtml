@@ -1,0 +1,170 @@
+﻿@using Battery.Model.Battery
+@model List<Sys_Data>
+@{
+    ViewBag.Title = "产品类型管理";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <select name="searchState" lay-filter="searchState" id="searchState">
+                    <option value="-100">全部状态</option>
+                    <option value="0">正常</option>
+                    <option value="1">停用</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchTypeCode" id="searchTypeCode" placeholder="型号编码" class="layui-input">
+            </div>
+
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Search(1)">&#xe615;</button>
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Detail(0)" >添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="250">
+                <col width="250">
+                <col width="250">
+                <col width="80">
+                <col width="230">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>型号名称</th>
+                    <th>型号编码</th>
+                    <th>添加日期</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item, index) in items">
+                    <td>
+                        {{ item.TypeName }}
+                    </td>
+                    <td>{{ item.TypeCode }}</td>
+                    <td>{{ item.CreateTimeT }}</td>
+                    <td>{{ item.State==0?"正常":"停用" }}</td>
+                    <td>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="Detail(item.ID)">查看</a>
+                        <template v-if="item.State==0">
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="SetTypeState(item.ID,1)">停用</a>
+                        </template>
+                        <template v-else>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="SetTypeState(item.ID,0)">正常</a>
+                        </template>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="9">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        <div id="page" style="text-align: center;"></div>
+    </div>
+</form>
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var formList = new Vue({
+        el: '#formList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            Detail: function (id) {
+                Detail(id);
+            },
+            SetTypeState: function (id, state) {
+                SetTypeState(id, state);
+            }
+
+        }
+    })
+    $(function () {
+        //$("#tbody").show();
+        Search(1);
+    })
+    function Search(pIndex) {
+        var searchState = $("#searchState").val();
+        var searchTypeCode = $('#searchTypeCode').val();
+
+        $.ajax({
+            type: 'POST',
+            url: location.href,
+            data: {
+                cmd: "GetList", TypeCode: searchTypeCode, state: searchState, PageLength: pageLength,PageStart: ((pIndex - 1) * pageLength + 1)
+            },
+            success: function (r) {
+                formList.items = r.data.Item2
+                formList.isShow = r.data.Item2.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    if (r.data.Item2.length > 0) {
+                        $("#tbody").show();
+                    }
+                    loadPage(r.data.Item1);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+
+    function Detail(id) {
+        VMsg.OpenWindow('@(Url.Action("ProductTypeDetail", "Product"))?Id=' + id, id==0?'添加类型':'修改类型', {
+            area: ["750px", "600px;"],
+            end: function () {
+                Search(1);
+            }
+        });
+    }
+
+    function SetTypeState(id, state) {
+        var _state = state == 1 ? "停用" : "启用";
+        PubAjax.Post("@Url.Action("SetTypeState", "Product")",
+        { "id": id, 'state': state}, function (r) {
+            if (r.code == 1) {
+                VMsg.AlertSuccess("操作成功", {
+                    end: function () {
+                        VMsg.Close();
+                        Search(1);
+                    }
+                });
+            } else {
+                VMsg.AlertError(r.message);
+            }
+        });
+
+    }
+
+</script>
+

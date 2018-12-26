@@ -1,0 +1,62 @@
+﻿
+@{
+    ViewBag.Title = "产品详情";
+}
+
+<div class="layui-tab layui-tab-card" style="min-height:480px">
+    <ul class="layui-tab-title">
+        <li class="layui-this">基本情况</li>
+        <li>调配记录</li>
+        <li>安装记录</li>
+        <li>客户资料</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 100px;width:1600px">
+        <div class="layui-tab-item layui-show" id="tab_1">@Html.Partial("ProductBase")</div>
+        <div class="layui-tab-item" id="tab_2">@Html.Partial("ProductSend")</div>
+        <div class="layui-tab-item" id="tab_3">@Html.Partial("ProductInstall")</div>
+        <div class="layui-tab-item" id="tab_4"></div>
+    </div>
+</div>
+<script>
+    //注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+    layui.use(['element', "layedit"], function () {
+        var element = layui.element;
+        var layedit = layui.layedit;
+        layedit.set({
+            height: 260, //设置编辑器高度
+            uploadImage: {
+                url: '@Url.Action("LayerEditUpImage", "Common", new { area = "" })' //接口url
+              , type: 'post' //默认post
+            }
+        });
+
+        var _RegistAgreement = layedit.build("_RegistAgreement");
+        layedit.sync(_RegistAgreement);
+        var _Privacy = layedit.build("_Privacy");
+        layedit.sync(_Privacy);
+        var _About = layedit.build("_About");
+        layedit.sync(_About);
+
+        $(".layui-tab-title > li:eq(0)").attr("class", "layui-this");
+    });
+
+    
+    //获取提交数据
+    function getData(tabId) {
+        var data = [];
+        $('#tab_' + tabId).each(function (i, item) {
+            var model = {};
+            $(item).find('.post-data').each(function (j, item1) {
+                var $current = $(item1);
+                if (typeof($current.attr('index'))=="undefined") {
+                    model[$current.attr('name')] = $current.val();
+                }
+                else {
+                    model[$current.attr('name')] = layui.layedit.getContent($current.attr('index'));
+                }
+            }); 
+            data[i] = model;
+        });
+        return data;
+    }
+</script>

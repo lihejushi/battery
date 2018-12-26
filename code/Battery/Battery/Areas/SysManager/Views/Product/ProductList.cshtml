@@ -1,0 +1,220 @@
+﻿@using Battery.Model.Battery
+@{
+    ViewBag.Title = "产品列表";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <select name="searchState" lay-filter="searchState" id="searchState">
+                    <option value="-100">全部状态</option>
+                    <option value="0">出厂</option>
+                    <option value="1">入店</option>
+                    <option value="2">安装</option>
+                    <option value="3">维修</option>
+                    <option value="4">报废</option>
+                    <option value="5">回收</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchNum" id="searchNum" placeholder="产品编号" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <select name="searchVoltage" lay-filter="searchVoltage" id="searchVoltage">
+                    <option value="-100">全部电压</option>
+                    @foreach (Sys_Data item in ViewBag.sd)
+                    {
+                        <option value=@item.Key>@item.Value</option>
+                    }
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="searchTypeID" lay-filter="searchTypeID" id="searchTypeID">
+                    <option value="-100">全部型号</option>
+                    @foreach (ProductType item in ViewBag.gp)
+                    {
+                        <option value=@item.ID>@item.TypeName</option>
+                    }
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="searchFactoryID" lay-filter="searchFactoryID" id="searchFactoryID">
+                    <option value="-100">全部厂家</option>
+                    @foreach (Factorys item in ViewBag.gf)
+                    {
+                        <option value=@item.ID>@item.Factory</option>
+                    }
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Search(1)">&#xe615;</button>
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="ScanAdd(0)">扫码添加</button>
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="PeopleAdd(0)">手动添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="250">
+                <col width="250">
+                <col width="250">
+                <col width="100">
+                <col width="80">
+                <col width="230">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>产品编号</th>
+                    <th>类型</th>
+                    <th>出厂日期</th>
+                    <th>电压(伏)</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item, index) in items">
+                    <td>
+                        {{ item.Num }}
+                    </td>
+                    <td>{{ item.TypeName }}</td>
+                    <td>{{ item.CreateTimeT }}</td>
+                    <td>{{ item.Voltage }}</td>
+                    <td>{{ item.StateT}}</td>
+                    <td>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="Detail(item.ID)">基本资料</a>
+                        <template v-if="item.State>0">
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="ProductSend(item.ID,1)">调配情况</a>
+                        </template>
+                        <template v-if="item.State>1">
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="InstallInfo(item.ID)">安装情况</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="UserInfo(item.ID)">用户资料</a>
+                        </template>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="9">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        <div id="page" style="text-align: center;"></div>
+    </div>
+</form>
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var formList = new Vue({
+        el: '#formList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            Detail: function (id) {
+                Detail(id);
+            },
+            InstallInfo: function (id) {
+                InstallInfo(id);
+            },
+            UserInfo: function (id) {
+                UserInfo(id);
+            }
+
+        }
+    })
+    $(function () {
+        //$("#tbody").show();
+        Search(1);
+    })
+    function Search(pIndex) {
+
+        var searchState = $("#searchState").val();
+        var searchNum = $('#searchNum').val();
+        var searchVoltage = $('#searchVoltage').val();
+        var searchTypeID = $('#searchTypeID').val();
+        var searchFactoryID = $("#searchFactoryID").val();
+
+        $.ajax({
+            type: 'POST',
+            url: location.href,
+            data: {
+                cmd: "GetList", Num: searchNum, TypeID: searchTypeID, state: searchState, Voltage: searchVoltage, FactoryID: searchFactoryID, PageLength: pageLength,PageStart: ((pIndex - 1) * pageLength + 1)
+            },
+            success: function (r) {
+                formList.items = r.data.Item2
+                formList.isShow = r.data.Item2.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    if (r.data.Item2.length > 0) {
+                        $("#tbody").show();
+                    }
+                    loadPage(r.data.Item1);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+
+    function Detail(id) {
+        location.href = "@Url.Action("ProductDetail", "Product")?ID="+id;
+    }
+
+    function SetTypeState(id, state) {
+        var _state = state == 1 ? "停用" : "启用";
+        PubAjax.Post("@Url.Action("SetTypeState", "Product")",
+        { "id": id, 'state': state}, function (r) {
+            if (r.code == 1) {
+                VMsg.AlertSuccess("操作成功", {
+                    end: function () {
+                        VMsg.Close();
+                        Search(1);
+                    }
+                });
+            } else {
+                VMsg.AlertError(r.message);
+            }
+        });
+
+    }
+
+    function ScanAdd() {
+        location.href = "@Url.Action("ScanAdd","Product")";
+    }
+
+    function PeopleAdd() {
+         VMsg.OpenWindow('@(Url.Action("PeopleAdd", "Product"))', '手动添加产品', {
+            area: ["750px", "350px;"],
+            end: function () {
+                document.location.href = location.href;
+            }
+        });
+    }
+
+</script>

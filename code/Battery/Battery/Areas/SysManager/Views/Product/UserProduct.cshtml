@@ -1,0 +1,251 @@
+﻿
+@model Battery.Model.Battery.ProductUserInfo
+@using Battery.Model.Battery;
+@{
+    ViewBag.Title = "安装产品";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+<style>
+
+</style>
+<div class="layui-row">
+    <div class="layui-col-xs12 layui-col-sm12 layui-col-md6" style="width:80%;margin-top:20px">
+        <label class="layui-form-label">产品编号</label>
+        <div class="layui-input-block">
+            <input type="text" autocomplete="off" class="layui-input" style="width:50%" id="scan" name="scan" placeholder="扫码获取编号,也可以手工输入后回车" />
+            <input type="hidden" id="Num" name="Num" />
+        </div>
+    </div>
+</div>
+
+<div class="layui-row" id="datatable" style="display:none;">
+    <div class="layui-col-xs12 layui-col-sm12 layui-col-md6" style="width:80%;margin-top:20px">
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户姓名</label>
+            <div class="layui-input-block">
+                <input type="text" id="UserName" style="width:50%" class="layui-input" placeholder="用户姓名" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户电话</label>
+            <div class="layui-input-block">
+                <input type="text" id="UserTel" style="width:50%" class="layui-input" placeholder="用户电话" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">工作单位</label>
+            <div class="layui-input-block">
+                <input type="text" id="WorkUnit" style="width:50%" class="layui-input" placeholder="工作单位" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">年龄</label>
+            <div class="layui-input-block">
+                <input type="text" id="Age" style="width:50%" class="layui-input" placeholder="年龄" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">职业</label>
+            <div class="layui-input-block">
+                <input type="text" id="Career" style="width:50%" class="layui-input" placeholder="职业" />
+            </div>
+        </div>
+        <div class="layui-form" style="margin-bottom:15px">
+            <label for="inputPassword3" class="layui-form-label">性别</label>
+            <div class="layui-input-inline">
+                <label class="radio-inline">
+                    <input type="radio" name="UserSex" id="UserSex1" value="0" title="男" checked>
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="UserSex" id="UserSex2" value="1" title="女">
+                </label>
+            </div>
+
+
+            <div class="layui-inline">
+                <label class="layui-form-label">学历</label>
+                <div class="layui-input-inline">
+                    <select name="Education" lay-filter="aihao" id="Education">
+                        <option value="中学">中学</option>
+                        <option value="专科">专科</option>
+                        <option value="本科" selected>本科</option>
+                        <option value="研究生">研究生</option>
+                        <option value="博士">博士</option>
+                        <option value="博士后">博士后</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">车辆用途</label>
+            <div class="layui-input-block">
+                <input type="text" id="UseBike" style="width:50%" class="layui-input" placeholder="车辆用途" />
+            </div>
+        </div>
+        <div class="layui-form" style="margin-bottom:15px">
+            <div class="layui-inline">
+                <label class="layui-form-label">了解产品渠道</label>
+                <div class="layui-input-inline">
+                    <select name="KonwStyle" lay-filter="aihao" id="KonwStyle">
+                        <option value="偶然碰见">偶然碰见</option>
+                        <option value="熟人推荐" selected>熟人推荐</option>
+                        <option value="媒体广告">媒体广告</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户微信</label>
+            <div class="layui-input-block">
+                <input type="text" id="UserWeChat" style="width:50%" class="layui-input" placeholder="用户微信" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户QQ</label>
+            <div class="layui-input-block">
+                <input type="text" id="UserQQ" style="width:50%" class="layui-input" placeholder="用户QQ" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户EMail</label>
+            <div class="layui-input-block">
+                <input type="text" id="UserEMail" style="width:50%" class="layui-input" placeholder="用户EMail" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">安装费用</label>
+            <div class="layui-input-block">
+                <input type="text" id="InstallCost" style="width:50%" class="layui-input" value="0" placeholder="安装费用" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-filter="demo1" onclick="getCode();">获取解锁码</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        //$("#tbody").show();
+        $("#scan").focus();
+        $("#scan").val();
+        $("#scan").keydown(function (e) {  //document为当前元素，限制范围，如果不限制的话会一直有事件
+            if (e.keyCode == 13) {
+                scanadd();
+            }
+        });
+       
+        function scanadd() {
+            if ($("#scan").val() == "") {
+                $("#scan").focus();
+            }
+            else {
+                $("#Num").val($("#scan").val());
+                $("#datatable").show();
+            }
+        }
+    })
+
+    function getCode() {
+            sign = 0;
+            var Num = $("#Num").val();
+            if (Num == "") {
+                VMsg.AlertError("产品编码异常，请重新扫码，或者您也可以尝试手工输入！");
+                $("#Num").focus();
+                sign = 1;
+            }
+
+            if (sign == 0) {
+                var UserName = $("#UserName").val();
+                if (UserName == "") {
+                    VMsg.AlertError("请填写用户姓名！");
+                    $("#UserName").focus();
+                    sign = 1;
+                }
+            }
+
+            if (sign == 0) {
+                var UserTel = $("#UserTel").val();
+                if (UserTel == "") {
+                    VMsg.AlertError("请填写用户电话！");
+                    $("#UserTel").focus();
+                    sign = 1;
+                }
+            }
+
+            if (sign == 0) {
+                var WorkUnit = $("#WorkUnit").val();
+                if (WorkUnit == "") {
+                    VMsg.AlertError("请填写工作单位！");
+                    $("#WorkUnit").focus();
+                    sign = 1;
+                }
+            }
+
+            if (sign == 0) {
+                var Age = $("#Age").val();
+                if (Age == "") {
+                    VMsg.AlertError("请填写年龄！");
+                    $("#Age").focus();
+                    sign = 1;
+                }
+            }
+
+            if (sign == 0) {
+                var UseBike = $("#UseBike").val();
+                if (UseBike == "") {
+                    VMsg.AlertError("请填写车辆用途！");
+                    $("#UseBike").focus();
+                    sign = 1;
+                }
+            }
+
+            if (sign == 0) {
+                var InstallCost = $("#InstallCost").val();
+                if (InstallCost == "") {
+                    VMsg.AlertError("请填写安装费用！");
+                    $("#InstallCost").focus();
+                    sign = 1;
+                }
+        }
+
+        var UserSex = $("input[name='UserSex']:checked").val();
+
+            //提交到后台
+            if (sign == 0) {
+                PubAjax.Post("@Url.Action("UserProduct", "Product")",
+                    {
+                        'Num': Num,
+                        'UserName': UserName,
+                        'UserTel': UserTel,
+                        'WorkUnit': WorkUnit,
+                        'Age': Age,
+                        'UseBike': UseBike,
+                        'UserWeChat': $("#UserWeChat").val(),
+                        'UserQQ': $("#UserQQ").val(),
+                        'UserEMail': $("#UserEMail").val(),
+                        'InstallCost': InstallCost,
+                        'UserSex': UserSex,
+                        'Career': $("#Career").val(),
+                        'Education': $("#Education").val(),
+                        'KonwStyle': $("#KonwStyle").val()
+                    }, function (r) {
+
+                    if (r.code== 0) {
+                        VMsg.AlertSuccess("操作成功", {
+                            end: function () {
+
+                            }
+                        });
+                    } else {
+                        VMsg.AlertError(r.message);
+                        //VMsg.Confirm("dddddd", function () {
+                        //    $("#scan").focus();  
+                        //}, {});
+                    }
+                });
+            }
+        }
+</script>

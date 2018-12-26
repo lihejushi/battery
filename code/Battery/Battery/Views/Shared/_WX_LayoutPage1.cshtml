@@ -1,0 +1,61 @@
+﻿@{
+                /**/
+
+                Layout = null;
+                Html.AddCssFileParts(CDNConfig.ResourcesUrl + "/Content/jquery-weui/css/weui.min.css");
+                Html.AddCssFileParts(CDNConfig.ResourcesUrl + "/Content/jquery-weui/css/jquery-weui.min.css");
+                Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Scripts/jquery-2.1.4.js");
+                Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Scripts/minilib.js");
+                Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Content/jquery-weui/js/jquery-weui.min.js");
+                Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Content/jquery-weui/js/swiper.min.js");
+                Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Content/jquery-weui/js/fastclick.js");
+}
+@functions{
+            /**/
+
+            private class CS
+            {
+                private int SiteId = 0;
+                private const string ImageDomain = "c.cnzz.com";
+                public CS(int SiteId)
+                {
+                    this.SiteId = SiteId;
+                }
+                public string TrackPageView()
+                {
+                    HttpRequest request = HttpContext.Current.Request;
+                    string scheme = request != null ? request.IsSecureConnection ? "https" : "http" : "http";
+                    string referer = request != null && request.UrlReferrer != null && "" != request.UrlReferrer.ToString() ? request.UrlReferrer.ToString() : "";
+                    String rnd = new Random().Next(0x7fffffff).ToString();
+                    return scheme + "://" + CS.ImageDomain + "/wapstat.php" + "?siteid=" + this.SiteId + "&r=" + HttpUtility.UrlEncode(referer) + "&rnd=" + rnd;
+                }
+            }
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>@ViewBag.Title</title>
+    @Html.XTHeadCustom()
+
+    @Html.XTCssFiles(this.Url, ResourceLocation.Head)
+    @Html.XTScripts(this.Url, ResourceLocation.Head)
+    <script type="text/javascript">
+        $(function () {
+            FastClick.attach(document.body);
+        });
+    </script>
+    @RenderSection("head", required: false)
+</head>
+<body ontouchstart>
+    @RenderBody()
+    @Html.XTScripts(this.Url, ResourceLocation.Foot)
+    @RenderSection("scripts", required: false)
+    <img style="display:none;" src="@Url.Content( new CS(1265282453).TrackPageView() )" width="0" height="0" />
+    @*<script src="https://s22.cnzz.com/z_stat.php?id=1264523656&web_id=1264523656" language="JavaScript"></script>*@
+</body>
+</html>

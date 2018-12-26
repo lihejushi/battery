@@ -1,0 +1,147 @@
+﻿@{
+    ViewBag.Title = "广告列表";
+    Layout = "~/Areas/SysManager/Views/Shared/Menu.cshtml";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+
+<!-- 搜索栏 -->
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-inline" style="width:auto">
+                <button type="button" onclick="EditSysAd(0)" class="layui-btn"><i class="layui-icon">&#xe654;</i> 添加广告</button>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <select name="AdType" lay-filter="aihao" id="AdType">
+                    <option value="-1">选择全部</option>
+                    @foreach (var option in ViewBag.AdTypeList)
+                    {
+                        <option value="@option.Key">@option.Value</option>
+                    }
+
+                </select>
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Search(1)">&#xe615;</button>
+            </div>
+        </div>
+    </div>
+</div>
+<form class="layui-form" action="" id="SysAdList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <thead>
+                <tr>
+                    <th>广告位置</th>
+                    <th>广告标题</th>
+                    @*<th>广告链接</th>*@
+                    <th>图片</th>
+                    <th width="100px">操作</th>
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item,index) in items">
+                    <td>{{ item.AdType == 1 ? "首页轮播图" : "" }}</td>
+                    <td>{{ item.Title }}</td>
+                    @*<td>{{ item.Url }}</td>*@
+                    <td><img :src="'@(FileDomain)'+item.ImgUrl" style="width:46px;" /></td>
+                    <td>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="EditSysAd(item.Id)">编辑</a>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-danger" v-on:click="DelSysAd(item.Id)">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="9">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        <div id="page" style="text-align: center;"></div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var pIndexCurr = 1//当前页
+    var sysadlist = new Vue({
+        el: '#SysAdList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            EditSysAd: function (Id) {
+                EditSysAd(Id);
+            },
+            DelSysAd: function (Id) {
+                DelSysAd(Id);
+            }
+        }
+    });
+
+    function EditSysAd(Id) {
+        OpenFullWindow('@(Url.Action("EditAd", "System"))?id=' + Id, '', {
+            end: function () {
+                Search(1);
+            }
+        });
+        @*location.href = '@Url.Action("EditAd", "System")?id=' + Id;*@
+    }
+
+    function DelSysAd(Id) {
+        VMsg.Confirm("确定要【删除】该广告信息吗？", function () {
+            PubAjax.Post("@Url.Action("DelAd", "System")", {
+                "id": Id
+            }, function (r) {
+                if (r.code == 1) {
+                    VMsg.AlertSuccess(r.message);
+                    Search(pIndexCurr);
+                }
+                else {
+                    VMsg.AlertError(r.message);
+                }
+            });
+        });
+    }
+    $(function () {
+        $("#tbody").show();
+        Search(1);
+    })
+    function Search(pIndex) {
+        var AdType = $("#AdType").val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("AdList", "System")',
+            data: { cmd: "GetList", AdType: AdType, PageLength: pageLength, PageStart: ((pIndex - 1) * pageLength + 1) },
+            success: function (r) {
+                sysadlist.items = r.data.Item2;
+                sysadlist.isShow = r.data.Item2.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    loadPage(r.data.Item1);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        pIndexCurr = obj.curr;
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+</script>

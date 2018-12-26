@@ -1,0 +1,182 @@
+﻿@using Battery.Model.Battery
+@model List<Products>
+@{
+    ViewBag.Title = "扫码添加产品";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="250">
+                <col width="250">
+                <col width="250">
+                <col width="100">
+                <col width="80">
+
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>产品编号</th>
+                    <th>类型</th>
+                    <th>出厂日期</th>
+                    <th>电压(伏)</th>
+                    <th>状态</th>
+
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item, index) in items">
+                    <td>
+                        {{ item.Num }}
+                    </td>
+                    <td>{{ item.TypeName }}</td>
+                    <td>{{ item.CreateTimeT }}</td>
+                    <td>{{ item.Voltage }}</td>
+                    <td>{{ item.StateT}}</td>
+                   
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="9">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        @*<div id="page" style="text-align: center;"></div>*@
+    </div>
+    <div>
+        <input id="scan" type="password" style="width:0px;ime-mode:disabled" onblur="this.type='text'" autocomplete="off"  />
+    </div>
+</form>
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var formList = new Vue({
+        el: '#formList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            
+
+        }
+    })
+    $(function () {
+        //$("#tbody").show();
+        $("#scan").focus();
+        Search(1);
+        $("#scan").keydown(function (e) {  //document为当前元素，限制范围，如果不限制的话会一直有事件
+            if (e.keyCode == 13) {
+                scanadd();
+            }
+        });
+        $(document).click(function()
+            {
+                $("#scan").focus();
+        });
+
+    })
+
+   
+    function Search(pIndex) {
+
+        $.ajax({
+            type: 'POST',
+            url: location.href,
+            data: {
+                cmd: "GetList"
+            },
+            success: function (r) {
+                formList.items = r.data
+                formList.isShow = r.data.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    if (r.data.length > 0) {
+                        $("#tbody").show();
+                    }
+                    loadPage(r.data.length);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+
+    function keydownEvent() {
+
+        var e = window.event || arguments.callee.caller.arguments[0];
+
+        if (e && e.keyCode == 13) {
+
+            alert("您按回车键了");
+
+        }
+
+    }
+
+
+    function scanadd() {
+        //alert($("#scan").val());
+        if ($("#scan").val() == "") {
+            $("#scan").focus();
+        }
+        else {
+            PubAjax.Post("@Url.Action("ScanCodeAdd", "Product")",
+                { 'productnum': $("#scan").val() }, function (r) {
+                    alert(r.code);
+                    if (r.code> 0) {
+                        VMsg.AlertSuccess("操作成功", {
+                            end: function () {
+                                VMsg.Close();
+                                Search(1);
+                                $("#scan").val() == ""
+                                $("#scan").focus();
+                            }
+                        });
+                    } else {
+                        var remain = "";
+                        switch (r.code)
+                        {
+                            case -1:
+                                remain = "该产品编号已存在，请处理异常！";
+                                break;
+                            case 0:
+                                remain = "该产品状态异常，请处理！";
+                                break;
+                            case -1:
+                                remain = "该产品编号异常，请处理！";
+                                break;
+                            default:
+                                remain = "添加失败，请重试";
+                                break;
+                        }
+                        alert(remain);
+                        //VMsg.Confirm("dddddd", function () {
+                        //    $("#scan").focus();  
+                        //}, {});
+                    }
+                });
+        }
+       
+    }
+   
+
+</script>

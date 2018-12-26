@@ -1,0 +1,156 @@
+﻿@model Battery.Model.X.UserInfo
+@{
+    ViewBag.Title = "查看用户";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+}
+
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item" style="padding:15px">
+
+        <table class="layui-table" lay-even="" lay-size="lg">
+            <colgroup>
+                <col width="150">
+                <col>
+            </colgroup>
+            <tbody>
+                <tr>
+                    <td align="right">手机号</td>
+                    <td>@Model.UserName</td>
+                </tr>
+                <tr>
+                    <td align="right">注册时间</td>
+                    <td>@Model.RegTimeT</td>
+                </tr>
+                <tr>
+                    <td align="right">最后登录时间</td>
+                    <td>@Model.LastLoginTimeT</td>
+                </tr>
+                <tr>
+                    <td align="right">登录次数</td>
+                    <td>@Model.LoginCount</td>
+                </tr>
+                <tr>
+                    <td align="right">状态</td>
+                    <td>@(Model.State == 0 ? "正常" : "锁定")</td>
+                </tr>
+                <tr>
+                    <td align="right">姓名</td>
+                    <td>@Model.UserRealName</td>
+                </tr>
+                <tr>
+                    <td align="right">年龄</td>
+                    <td>@Model.Age</td>
+                </tr>
+                <tr>
+                    <td align="right">性别</td>
+                    <td>
+                        @(Model.Sex == 0 ? "男" : "女")
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">身份</td>
+                    <td>
+                        @(Model.Career.ToString().Substring(0, 1) == "1" ? "编剧" : "" + " ");
+                        @(Model.Career.ToString().Substring(1, 1) == "1" ? "演员" : "");
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">身份证号</td>
+                    <td>@Model.Identity</td>
+                </tr>
+                <tr>
+                    <td align="right">工作单位/在读院校</td>
+                    <td>@Model.WorkUnit</td>
+                </tr>
+                <tr>
+                    <td align="right">职业</td>
+                    <td>@Model.Occupation</td>
+                </tr>
+                <tr>
+                    <td align="right">毕业院校</td>
+                    <td>@Model.Graduation</td>
+                </tr>
+                <tr>
+                    <td align="right">最高学历</td>
+                    <td>@Model.Education</td>
+                </tr>
+                <tr>
+                    <td align="right">所学专业</td>
+                    <td>@Model.Major</td>
+                </tr>
+                <tr>
+                    <td align="right">爱好特长</td>
+                    <td>@Model.Specialties</td>
+                </tr>
+                <tr>
+                    <td align="right">个人头像</td>
+                    <td>
+                        @if (Model.Avator != null)
+                        {
+                            <div id="Prew_Cover">
+                                <img style="width:100px;height:100px" src="@(FileDomain+Model.Avator)" />
+                            </div>
+                        }
+
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">生活照片</td>
+                    <td>
+                        <div id="layer-photos-demo" class="layer-photos-demo">
+
+                            <img style="width:100px;height:100px;padding:5px" src="@(FileDomain+Model.BigPic)" />
+
+                        </div>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td align="right">籍贯</td>
+                    <td>@Model.Native</td>
+                </tr>
+                <tr>
+                    <td align="right">现居</td>
+                    <td>@(Model.Province + Model.City + Model.Town)</td>
+                </tr>
+                <tr>
+                    <td align="right">QQ</td>
+                    <td>@Model.QQ</td>
+                </tr>
+                <tr>
+                    <td align="right">EMail</td>
+                    <td>@Model.EMail</td>
+                </tr>
+                <tr>
+                    <td align="right">微信</td>
+                    <td>@Model.Wechat</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</form>
+<script>
+
+    layui.use(['form', 'layer'], function () {
+        var form = layui.form
+        , layer = layui.layer;
+
+        //图片预览
+        layer.photos({
+            photos: '#layer-photos-demo'
+          , anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+        });
+        layer.photos({
+            photos: '#Prew_Cover'
+          , anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+        });
+    });
+
+    function CopyUrl() {
+        var inputObj = $('#pageUrl');
+        inputObj.select();
+        document.execCommand("Copy");
+        VMsg.AlertSuccess("链接已复制到剪贴板");
+    }
+</script>
+

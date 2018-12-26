@@ -1,0 +1,311 @@
+﻿@model Battery.Model.V_NavData
+@{
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+    ViewBag.Title = "设置导航";
+}
+<script type="text/javascript">
+    var CommonNavData = {
+        'AppId': 0,
+        'NavImg': '',
+        'NavContentType': 'APP',
+        'NavContentValue': '',
+        'NavLinkType': 'Nav',
+        'NavLink': '1.1',
+        'NavValueTitle': '首页',
+        'NavValue': '1.1',
+    };
+
+    var Main_Nav_List = [
+        { key: "1.1", value: "首页", url: "/Home/Index" },
+        { key: "1.2", value: "注册", url: "/Home/Regist" },
+        { key: "1.3", value: "登录", url: "/Home/Login" }
+    ];
+    var Main_Content_List = [
+        { key: "2.1", value: "活动", url: "/Activity/Index?id={0}" },
+        { key: "2.2", value: "资源", url: "/Activity/GetResources?id={0}" }
+    ];
+    //选择链接类型
+    function SelectContentType(navContentType, navContentValue, navContentValueTitle) {
+        $("#NavContentValue").hide().val(navContentValue);
+        $("#NavValueTitle").text('');
+        $("#SpanNavContentValue").text(navContentValueTitle);
+        switch (navContentType) {
+            case "APP":
+                {
+                    $("#DivNavContentValue").hide();
+                    $("#NavContentSelbtn").hide();
+                    $("#TrNavLink").show();
+                    break;
+                }
+            case "ZDY":
+                {
+                    $("#DivNavContentValue").show();
+                    $("#NavContentSelbtn").hide();
+                    $("#NavContentValue").show().removeAttr("disabled");
+                    $("#TrNavLink").hide();
+                    $("#LabelNavContentValue").show().text("链接地址");
+                    $("#NavLinkType").val('');
+                    break;
+                }
+            default:
+                {
+                    $("#TrNavLink,#DivNavContentValue").hide();
+                    break;
+                }
+        }
+    }
+
+    function SelectNavLinkType(navContentType, navType, navLink, navValue, navTitle) {
+        $("#NavLink").html('');
+        $("#NavValue").val('');
+        $("#NavValueTitle,.NavLink,.BtnSelectContent").hide();
+        SetLinkSelect(navContentType, navType, navLink);
+        switch (navType) {
+            case "Nav":
+                {
+                    $(".NavLink").show();
+                    break;
+                }
+            case "Content":
+                { 
+                    $("#NavValueTitle").show().text(navTitle);
+                    $(".NavLink,.BtnSelectContent").show();
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+    }
+
+    function SetLinkSelect(navContentType, navType, selectValue) {
+        var list = [];
+        if (navContentType == "APP" && navType == "Nav") list = Main_Nav_List;
+        if (navContentType == "APP" && navType == "Content") list = Main_Content_List;
+
+        var html = ['<option value="">请选择</option>'];
+        for (var i = 0; i < list.length; i++) {
+            html.push('<option data-url="' + list[i].url + '" value="' + list[i].key + '" ' + (list[i].key == selectValue ? 'selected="selected"' : '') + '>' + list[i].value + '</option>');
+        }
+        $("#NavLink").html(html.join(' '));
+    }
+
+    function GetNavData() {
+        var appId = 0;
+        var navImg = $("#NavImg").val();
+        var navContentType = $("#NavContentType").val();
+        var navContentValue = $("#NavContentValue").val();
+        var navContentValueTitle = "";
+        var navLinkType = navLink = navValueTitle = navValue = "";
+        var navContentTypeTitle = navLinkTypeTitle = navLinkTitle = "";
+        var navUrl = "";
+        navContentTypeTitle = $("#NavContentType :selected").text();
+        if (navContentType == "APP" || navContentType == "SHOP") {
+            if (navContentType == "APP") {
+                navContentValue = ""; navContentValueTitle = '';
+            }
+            else {
+                appId = parseInt(navContentValue);
+                navContentValueTitle = $("#SpanNavContentValue").text();
+            }
+            navLinkType = $("#NavLinkType").val();
+
+            navLink = $("#NavLink").val();
+            if (navLinkType == "Nav") {
+                navValue = navLink;
+                navValueTitle = $("#NavLink :selected").text();
+            } else {
+                navValue = $("#NavValue").val();
+                navValueTitle = $("#NavValueTitle").text();
+            }
+            navUrl = $("#NavLink :selected").data("url");
+            navLinkTypeTitle = $("#NavLinkType :selected").text();
+            navLinkTitle = $("#NavLink :selected").text();
+        }
+        return {
+            'AppId': appId,
+            'NavImg': navImg,
+            'NavContentType': navContentType,
+            'NavContentTypeTitle': navContentTypeTitle,
+            'NavContentValue': navContentValue,
+            'NavContentValueTitle': navContentValueTitle,
+            'NavLinkType': navLinkType,
+            'NavLinkTypeTitle': navLinkTypeTitle,
+            'NavLink': navLink,
+            'NavLinkTitle': navLinkTitle,
+            'NavValue': navValue,
+            'NavValueTitle': navValueTitle,
+            'NavUrl': navUrl
+        };
+    }
+
+    function InitNavData() {
+        var data = window.top.Common_NavData;
+        if (data) {
+            @if (ViewBag.NeedImg == 1)
+            {
+                 @:if (data.NavImg) {
+                                                @:$("#ImgDom").attr("src", FileDomain + data.NavImg);
+                                                @:$("#NavImg").val(data.NavImg);
+
+             @:}
+            
+
+                        }
+            $("#NavContentType").val(data.NavContentType);
+            SelectContentType(data.NavContentType, data.NavContentValue, data.NavContentValueTitle);
+            $("#NavLinkType").val(data.NavLinkType);
+
+            SelectNavLinkType(data.NavContentType, data.NavLinkType, data.NavLink, data.NavValue, data.NavValueTitle);
+            $("#NavValue").val(data.NavValue);
+
+        }
+        window.top.Common_NavData = undefined;
+    }
+
+    function CheckNavData() {
+        var result = true;
+        var data = GetNavData();
+        if (data) {
+            @if (ViewBag.NeedImg == 1)
+            {
+                @:if (!data.NavImg) {
+                                                @:top.VMsg.AlertError("请上传显示图片");
+                                                @:return false;
+                                                             @: }
+           
+
+              }
+            if (data.NavContentType != "APP" && data.NavContentType != "ZDY") {
+                top.VMsg.AlertError("请选择链接类型");
+                return false;
+            } else if (data.NavContentType != "ZDY") {
+                if (!data.NavLink || !data.NavLinkType || !data.NavValue || !data.NavValueTitle) {
+                    top.VMsg.AlertError("请选择连接内容");
+                    return false;
+                }
+            }
+        } else {
+            top.VMsg.AlertError("未获取到数据");
+            return false;
+        }
+        return result;
+    }
+
+    function SaveNavData() {
+        if (CheckNavData()) {
+            var data = GetNavData();
+            window.top.Common_NavData = data;
+            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+            parent.layer.close(index);
+        }
+    }
+    $(function () {
+        InitNavData();
+    });
+    function ShowChooseContentDialog(selType) {
+        // var contentType = $('#Content option:selected').data("tage");
+        var contentType = $('#NavLink option:selected').val();
+        if (selType == 0) contentType = "1.1";
+        $("#NavContentValue").val();
+        if (contentType != "") {
+            window.top.ChooseContent = undefined;
+            var urlstr = '@Url.Action("ChooseContent", "Common")' + '?contentType=' + contentType + "&QYID=" + $("#NavContentValue").val();
+            if (selType == 0) urlstr = '@Url.Action("ChooseContent", "Common")' + '?contentType=' + contentType + "&QYID=1";
+            VMsg.TopOpenWindow(urlstr, "选择", {
+                area: ["650px", "450px"], end: function () {
+                    var obj = window.top.ChooseContent;
+                    if (obj) {
+                        if (selType == 1) {
+                            $('#NavValueTitle').html(obj.title);
+                            $('#NavValue').val(obj.id);
+                        }
+                        else if (selType == 0) {
+                            $('#SpanNavContentValue').html(obj.title);
+                            if ($('#NavContentValue').val() != obj.id) {
+                                $('#NavContentValue').val(obj.id);
+                                var navContentType = $("#NavContentType").val();
+                                SelectNavLinkType(navContentType, $("#NavLinkType").val(), '', '', '');
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        else
+            alert("请选择");
+    }
+    layui.use(["form"], function () {
+        var form = layui.form;
+        form.on('select(NavContentType)', function (data) {
+            var navContentType = $("#NavContentType").val();
+            SelectContentType(navContentType, '', '');
+            SelectNavLinkType(navContentType, $("#NavLinkType").val(), '', '', '');
+            form.render();
+        });
+        form.on('select(NavLinkType)', function (data) {
+            var navLinkType = $("#NavLinkType").val();
+            SelectNavLinkType($("#NavContentType").val(), navLinkType, '', '', '');
+            form.render();
+        });
+        form.on('select(NavLink)', function (data) {
+            //var navLinkType = $("#NavLinkType").val();
+            //SelectNavLinkType($("#NavContentType").val(), navLinkType, '', '', '');
+            form.render();
+        });
+    });
+</script>
+<div style="padding:10px;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">链接类型</label>
+            <div class="layui-input-block">
+                <select id="NavContentType" name="NavContentType" lay-filter="NavContentType">
+                    <option value="">请选择</option>
+                    @if (ViewBag.NavType == 0 || ViewBag.NavType == 1)
+                    {
+                        <option value="APP">平台</option>
+                    }
+                    <option value="ZDY">自定义链接</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item" id="DivNavContentValue" style="display: none">
+            <label class="layui-form-label" for="NavContentValue" id="LabelNavContentValue"></label>
+            <div class="layui-input-block">
+                <span id="SpanNavContentValue"></span>
+                <input type="text" class="layui-input" id="NavContentValue" value="@( ViewBag.NavType == 2 ? ViewBag.AppId : "")" @( ViewBag.NavType == 2 ? "disabled='disabled'" : "") />
+            </div>
+        </div>
+        <div class="layui-form-item" id="TrNavLink" style="display:none;">
+            <label class="layui-form-label">链接内容</label>
+            <div class="layui-input-block">
+                <select id="NavLinkType" name="NavLinkType" lay-filter="NavLinkType">
+                    <option value="">请选择</option>
+                    <option value="Nav">导航连接</option>
+                    <option value="Content">内容连接</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item NavLink" id="TrNavLink" style="display:none;">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-block">
+                <select id="NavLink" lay-filter="NavLink"></select>
+            </div>
+        </div>
+        <div class="layui-form-item BtnSelectContent" style="display:none">
+            <label class="layui-form-label"></label>
+            <span id="NavValueTitle"></span>
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn layui-btn-normal" id="BtnSelectContent" onclick="ShowChooseContentDialog(1);">选择内容</button>
+                <input style="display: none" type="text" id="NavValue" value="" />
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" id="btn_submit" onclick="SaveNavData()" type="button">立即提交</button>
+            </div>
+        </div>
+    </form>
+</div>

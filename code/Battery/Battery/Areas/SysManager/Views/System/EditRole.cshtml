@@ -1,0 +1,63 @@
+﻿@model Battery.Model.Sys_Role
+@{
+    ViewBag.Title = "编辑用户角色";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+}
+<script src="~/Scripts/jquery.form.js"></script>
+<script>
+    var Action = "@((Model == null || Model.Id <= 0) ? "CreateRole" : "EditRole")";
+    $(function () { 
+        if (Action == "CreateRole") $("#Id").val("0"); 
+        $("#RoleForm").submit(function (e) {
+            e.preventDefault();
+            $(this).ajaxSubmit({
+                beforeSubmit: function (formArray, jqForm) {
+                    return true;
+                },
+                dataType: 'json',
+                success: function (r) {
+                    if (CheckJsonResult(r)) {
+                        if (r.code == 1) {
+                            VMsg.AlertSuccess("提交成功，正在跳转到管理页面", {
+                                end: function () {
+                                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                    parent.layer.close(index);
+                                    //location.href = "@Url.Action("PersonList", "System")";
+                                }
+                            });
+                        }
+                        else if (r.code == -1) {
+                            VMsg.AlertError("角色名重复");
+                        }
+                        else {
+                            VMsg.AlertError("操作失败");
+                        }
+                    }
+                },
+                resetForm: false
+            });
+        });
+    }) 
+</script>
+@using (Html.BeginForm((Model == null || Model.Id <= 0) ? "CreateRole" : "EditRole", "System", FormMethod.Post, new { id = "RoleForm", @class = "layui-form" }))
+{
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色名</label>
+        <div class="layui-input-block">
+            @Html.HiddenFor(m => m.Id)
+            @Html.TextBoxFor(m => m.Name, new { @class = "layui-input", lay_verify = "required|length", lay_vmax = "16", lay_vmin = "1", placeholder = "请输入角色名" })
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注 </label>
+        <div class="layui-input-block">
+            @Html.TextAreaFor(m => m.Memo, new { style = "width:100%x;height:100px", maxlength = 128, @class = "layui-input" })
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+}

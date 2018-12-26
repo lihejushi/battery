@@ -1,0 +1,144 @@
+﻿@{
+    Layout = null;
+    Html.AddCssFileParts(CDNConfig.ResourcesUrl + "/Content/layui/css/layui.css");
+    Html.AddCssFileParts(CDNConfig.ResourcesUrl + "/Content/css/page.css");
+    Html.AddCssFileParts(CDNConfig.ResourcesUrl + "/Content/bootstrap/bootstrap.min.css");
+    Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Scripts/jquery-2.1.4.js");
+    Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Content/layui/layui.js");
+    Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Scripts/minilib.js");
+    Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Content/bootstrap/bootstrap.min.js");
+    Html.AddScriptParts(ResourceLocation.Foot, CDNConfig.ResourcesUrl + "/Scripts/extendVerify.js");
+    Html.AddScriptParts(ResourceLocation.Head, CDNConfig.ResourcesUrl + "/Scripts/PublicJs.js?ss=1.0");
+
+}
+@functions{
+    private class CS
+    {
+        private int SiteId = 0;
+        private const string ImageDomain = "c.cnzz.com";
+        public CS(int SiteId)
+        {
+            this.SiteId = SiteId;
+        }
+        public string TrackPageView()
+        {
+            HttpRequest request = HttpContext.Current.Request;
+            string scheme = request != null ? request.IsSecureConnection ? "https" : "http" : "http";
+            string referer = request != null && request.UrlReferrer != null && "" != request.UrlReferrer.ToString() ? request.UrlReferrer.ToString() : "";
+            String rnd = new Random().Next(0x7fffffff).ToString();
+            return scheme + "://" + CS.ImageDomain + "/wapstat.php" + "?siteid=" + this.SiteId + "&r=" + HttpUtility.UrlEncode(referer) + "&rnd=" + rnd;
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Html.XTHeadCustom()
+    <style type="text/css">
+        .content_show_info {
+            background-color: #f1f1f1;
+            margin-bottom: 15px;
+            border: 1px dashed #ccc;
+        }
+
+            .content_show_info table td:first-child {
+                min-width: 100px;
+            }
+
+            .content_show_info table td {
+                padding: 10px;
+            }
+
+        /* .phone_preview_info .phone_wrap{width: 300px;margin: 0 auto;position: relative;}
+        .phone_preview_info .phone_wrap img{width: 100%;}
+        .phone_preview_info .phone_wrap .phone_info{width: 260px;height: 464px;position: absolute;background-color: red;left: 20px;top: 76px;} */
+    </style>
+    @Html.XTCssFiles(this.Url, ResourceLocation.Head)
+    @Html.XTScripts(this.Url, ResourceLocation.Head)
+    <script type="text/javascript">
+        var BasePath = "@Url.Content("~/")";
+        var FileDomain = "@FileDomain";
+        var MainDomain = "@MainDomain";
+        var UrlPath = "@Url.Content("~/")";
+        var BaseDomain = "@BaseDomain";
+        var UEDITOR_CONFIG_URL = "@Url.Action("UEditor", "Tools", new { area="" })";
+        var uploadUrl = "@Url.Action("UpImage", "Common", new { area = "" })";
+        //裁剪图片
+        function OpenCropimg(w, h, callBack, ext) {
+            if (!ext) ext = "jpg";
+            VMsg.TopOpenWindow("@Url.Action("CropImg", "Common",new { area="SysManager"})?w=" + w + "&h=" + h + "&ext=" + ext, "裁剪图片", {
+                end: callBack, area: ["700px", "610px"]
+            });
+        }
+        //选择链接
+        function OpenSelectNav(navData, option, callBack) {
+            window.top.Common_NavData = navData;
+            var _option = $.extend({
+                NavType: 0,
+                AppId: 0,
+                NeedImg: 0,
+                ImgWidth: 600,
+                ImgHeight: 450,
+                ImgExt: "jpg"
+            }, option);
+            var reUrl = [];
+            for (var k in _option) {
+                reUrl.push(k + "=" + _option[k]);
+            }
+            VMsg.TopOpenWindow("@Url.Action("SelectNav", "Common",new { area= "SysManager" })?" + reUrl.join("&"), "选择内容", {
+                end: callBack, area: ["700px", "510px"]
+            });
+        }
+    </script>
+    @Html.XTCssFiles(this.Url, ResourceLocation.Head)
+    @Html.XTScripts(this.Url, ResourceLocation.Head)
+    @RenderSection("head", required: false)
+</head>
+<body>
+    @if (CurrentUser.IsLogin == false)
+    {
+        Response.Redirect("~/Home/Index");
+    }
+    else
+    {
+        <div class="header container-fluid" id="headdiv">
+            <div class="row">
+                <div class="col-sm-9"></div>
+                <div class="col-sm-3">
+                    <div class="row mybtn">
+                        <div onselectstart="return false;" class="col-sm-7 my col-md-offset-5">
+                            <img src='@(string.IsNullOrEmpty(CurrentUser.Avator)==true?Url.Content("~/Content/images/img/my.png"):FileDomain+CurrentUser.Avator)' alt="">
+                            @CurrentUser.UserName
+                        </div>
+                        <div hidden class="col-sm-7 col-md-offset-5 dropdown">
+                            <div class="row itembox">
+                                <div class="col-sm-12 item" onclick='window.location.href="@Url.Action("UserDocuments","DocumentAndPicture")"'>
+                                    文件管理
+                                </div>
+                                <div class="col-sm-12 item" onclick='window.location.href="@Url.Action("EditUserInfo","Home")"'>
+                                    个人资料
+                                </div>
+                                <div class="col-sm-12 item" onclick='window.location.href="@Url.Action("ModifyPWD","Home")"'>
+                                    修改密码
+                                </div>
+                                <div class="col-sm-12 item">
+                                    退出账号
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @RenderBody()
+    @Html.XTScripts(this.Url, ResourceLocation.Foot)
+    @RenderSection("scripts", required: false)
+    @*<img style="display:none;" src="@Url.Content( new CS(1265282453).TrackPageView() )" width="0" height="0" />*@
+</body>
+</html>

@@ -1,0 +1,92 @@
+﻿@using Battery.Model.Battery;
+<div class="box-body">
+
+    @{var model = Battery.DAL.Battery.ProductDAL.ProductInstall(ViewBag.Id);}
+    @*<textarea name="ConfigValue" class="post-data" id="_Privacy" index="2" style="display:none;">@Html.Raw(model != null ? model.ConfigValue : "")</textarea>
+        <input type="hidden" name="GroupCode" class="post-data" value="@(model != null ? model.GroupCode : "Privacy")" />
+        <input type="hidden" name="ConfigCode" class="post-data" value="@(model != null ? model.ConfigCode : "System")" />
+        <input type="hidden" name="SoryNo" class="post-data" value="@(model != null ? model.SortNo : 0)" />
+        <input type="hidden" name="Id" class="post-data" value="@(model != null ? model.Id : 0)" />*@
+    <div class="layui-form-item" style="padding:15px">
+
+        <table class="layui-table" lay-even="" lay-size="lg">
+            <colgroup>
+                <col width="150">
+                <col>
+            </colgroup>
+            <tr>
+                <th style="display:none">
+                    编号
+                </th>
+                <th>
+                    产品
+                </th>
+                <th>
+                    门店
+                </th>
+                <th>
+                    安装人员编号
+                </th>
+                <th>
+                    安装人员
+                </th>
+                <th>
+                    安装日期
+                </th>
+                <th>
+                    激活时间
+                </th>
+                <th>
+                    第几次安装
+                </th>
+                <th>
+                    安装费用
+                </th>
+                <th>
+                    具体操作
+                </th>
+                <th>
+                    是否报废
+                </th>
+                <th>
+                    备注
+                </th>
+                <th>
+                    用户资料
+                </th>
+            </tr>
+            <tbody>
+                @foreach (ProductInstall item in model)
+                {
+                <tr>
+                    <td align="right" style="display:none">@item.ID</td>
+                    <td>@item.Num</td>
+                    <td>@item.StoreID</td>
+                    <td>@item.StaffNum</td>
+                    <td>@(item.StaffName)</td>
+                    <td>@item.InstallDate</td>
+                    <td>@(item.ActiveDate)</td>
+                    <td>@(item.InstallTimes)</td>
+                    <td>@(item.InstallCost)</td>
+                    <td>@(item.InstallOrUn == 0 ? "安装" : "卸载")</td>
+                    <td>@(item.IsScrap == 0 ? "回收加锁" : "报废")</td>
+                    <td>@(item.Remark)</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="UserInfo(item.ID);">查看</a>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function UserInfo(id) {
+         VMsg.OpenWindow('@(Url.Action("ProductUserInfo", "Product"))?ID=' + id,'用户资料', {
+            area: ["750px", "600px;"],
+            end: function () {
+                
+            }
+        });
+    }
+</script>

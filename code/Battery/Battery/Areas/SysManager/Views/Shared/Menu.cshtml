@@ -1,0 +1,88 @@
+﻿@using Battery.Model
+@{
+    ViewBag.MeunTitle = "后台管理";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+    List<Sys_Menu> MenuList = (List<Sys_Menu>)ViewData["MenuList"];
+}
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">dramacrew-后台管理</div> 
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+               <a href="javascript:;">
+                    @*<img src="http://t.cn/RCzsdCq" class="layui-nav-img">*@
+                    @CurrentUser.UserName
+                </a>
+                <dl class="layui-nav-child">
+                    @*<dd><a href="">基本资料</a></dd>*@
+                    <dd><a href="javascript:" onclick="EditPwd();">修改密码</a></dd>
+                </dl>
+            </li>
+            <li class="layui-nav-item"><a href="@Url.Action("Logout", "Home")" class="btn btn-default btn-flat">退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="demo">
+                <li id="dd_0" class="layui-nav-item"><a href="@Url.Action("Index", "Home")">概况</a></li>
+                @if (MenuList != null)
+                {
+                    foreach (var item in MenuList.OrderBy(m => m.SortNo))
+                    {
+                        <li class="layui-nav-item">
+                            <a class="" href="javascript:;">@item.Name</a>
+                            <dl class="layui-nav-child">
+                                @foreach (var child in item.ChildMenus.OrderBy(c => c.SortNo))
+                                {
+                                    <dd id="dd_@child.Id"><a href="@Url.Content(child.Url)">@child.Name</a></dd>
+                                }
+                            </dl>
+                        </li>
+                    }
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body" style="bottom: 0;">
+        <!-- 内容主体区域 -->
+        <div style="padding: 15px;">
+            <!-- 顶部标题 -->
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>@ViewBag.Title</legend>
+            </fieldset>
+            @RenderBody()
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        var id = sessionStorage.getItem("SelElem");
+        if (id == undefined) { id = "dd_0"; }
+        if (!$(".layui-side-scroll .layui-nav-item #" + id).parent().parent().hasClass("layui-nav-itemed")) {
+            $(".layui-bg-black li,.layui-nav-itemed").removeClass("layui-nav-itemed");
+            $(".layui-side-scroll .layui-nav-item #" + id).parent().parent().addClass("layui-nav-itemed");
+        }
+        if (!$(".layui-side-scroll #" + id).hasClass("layui-this")) {
+            $(".layui-bg-black li dd,.layui-this").removeClass("layui-this");
+            $(".layui-side-scroll #" + id).addClass("layui-this");
+        } 
+    })
+    layui.use(['element', 'layer'], function () {
+        var element = layui.element; 
+        //监听导航点击
+        element.on('nav(demo)', function (elem) {
+            sessionStorage.setItem("SelElem", $(this).attr("id"))
+        });
+    });
+    function EditPwd() {
+        VMsg.TopOpenWindow("@Url.Action("EditPwd", "Home")", "修改密码", {
+        area: ["800px", "400px"], end: function () {
+            if (window.top.isEdit == 1)
+                location.href = "@Url.Action("Logout", "Home")";
+        }
+    });
+    }
+</script>

@@ -1,0 +1,73 @@
+﻿@model List<Battery.Model.Sys_Role>
+@{
+    ViewBag.Title = "用户角色";
+}
+
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-inline" style="width:auto">
+                <button type="button" onclick="OpenWindow('@(Url.Action("EditRole", "System", new { roleId=0 }))','添加角色');" class="layui-btn"><i class="layui-icon">&#xe654;</i> 添加角色</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="100">
+                <col>
+                <col width="280">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>角色名称</th>
+                    <th>角色描述</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody v-show="isShow" v-for="(item, index) in items">
+                @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Memo</td>
+                        <td>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini" onclick="OpenWindow('@(Url.Action("SetPermission", "System", new { roleId=item.Id }))','分配权限')">分配权限</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-warm" onclick="OpenWindow('@(Url.Action("EditRole", "System", new { roleId=item.Id }))','编辑角色');">编辑</a>
+                            <a class="layui-btn layui-btn-mini layui-btn-normal" href="@(Url.Action("PersonList", "System", new { roleId=item.Id }))">
+                                下属用户
+                            </a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-danger" onclick="DeleteRole(@item.Id);">删除</a>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr class="odd"><td valign="top" colspan="3" class="dataTables_empty">抱歉，没有找到内容</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    function DeleteRole(roleId) {
+        VMsg.Confirm("确定要删除该角色？", function () {
+            PubAjax.Post("@Url.Action("DeleteRole","System")", {
+                "RoleId": roleId
+            }, function (r) {
+                if (r.code) {
+                    VMsg.AlertSuccess("执行成功", {
+                        end: function () {
+                            location.href = location.href;
+                        }
+                    });
+                } else {
+                    VMsg.AlertError("执行失败");
+                }
+            });
+        });
+    }
+</script>

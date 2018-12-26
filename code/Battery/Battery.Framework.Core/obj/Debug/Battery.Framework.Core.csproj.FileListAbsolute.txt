@@ -1,0 +1,2 @@
+D:\Family\ImproveElectricity\code\Battery\Battery.Framework.Core\obj\Debug\Battery.Framework.Core.csprojAssemblyReference.cache
+D:\Family\ImproveElectricity\code\Battery\Battery.Framework.Core\obj\Debug\Battery.Framework.Core.csproj.CoreCompileInputs.cache

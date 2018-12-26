@@ -1,0 +1,145 @@
+﻿@{
+    ViewBag.Title = "裁减图片";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+    Html.AddCssFileParts("~/Scripts/jquery.Jcrop/jquery.Jcrop.min.css");
+    Html.AddScriptParts(ResourceLocation.Foot, "~/Scripts/jquery.Jcrop/jquery.Jcrop.min.js");
+}
+<style>
+        img { max-width: 620px;max-height:430px; }
+</style>
+<div style="padding:10px;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            @*<p class="btn btn-success upload_btn">
+                    <input type="file" id="file_up" name="file_up" onchange="UploadImg(this,@ViewData["T_Width"],@ViewData["T_Height"],CallBackFun);"
+                        style="height:30px;" />上传图片
+
+                </p>&nbsp;*@
+            <button type="button" class="layui-btn layui-btn-normal" id="selQrImg">上传图片</button>
+            <button type="button" class="layui-btn layui-btn-normal  layui-btn-warm" id="idSave">保存图片</button>
+            <span>请选择要裁剪的图片区域：@ViewData["T_Width"]*@ViewData["T_Height"]</span>
+        </div>
+    </form>
+    <div class="row">
+        <div style="width: 650px; margin: 10px 0 0 0; height: 470px; text-align: left; overflow: hidden;"> 
+            <div style="overflow: hidden;"> 
+                <img src="" id="target" alt="原始图片" style="display: none;" />
+            </div>
+            <div id="coords" style="display: none;">
+                <input type="text" size="4" id="x1" name="x1" />
+                <input type="text" size="4" id="y1" name="y1" />
+                <input type="text" size="4" id="x2" name="x2" />
+                <input type="text" size="4" id="y2" name="y2" />
+                <input type="text" size="4" id="w" name="w" />
+                <input type="text" size="4" id="h" name="h" />
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    layui.use(['upload', "form"], function () {
+        var upload = layui.upload;
+        var form = layui.form;
+        form.on('select(AppType)', function (data) {
+            formList.isApp = data.value == 1 ? true : false;
+            form.render();
+            if (data.value == 1) {
+                $("#WeQRCode").attr("lay_verify", "");
+            }
+            else {
+                $("#WeQRCode").attr("lay_verify", "required");
+
+            }
+        });
+
+        var uploadInst = upload.render({
+            elem: '#selQrImg' //绑定元素
+          , url:uploadUrl //上传接口
+          , accept: 'images' //允许上传的文件类型
+            , size: 2048 //最大允许上传的文件大小
+          , done: function (json, status, data) {
+              //上传完毕回调
+              $(":file").val(""); //$(clew).hide();
+              if (json.code == "1") {
+                  CallBackFun(json.data);
+                  $("#UpImage_hits").remove();
+              } else
+                  VMsg.AlertError(json.message);
+          }
+          , error: function () {
+              //请求异常回调
+          }
+        });
+    });
+    $(function(){
+        window.top.CropImgData = undefined;
+    });
+    var SourceSrc = undefined;
+    var jcrop_api = undefined;
+    function CallBackFun(imgUrl) {
+        SourceSrc = imgUrl;
+        if(jcrop_api != undefined){
+            jcrop_api.setImage(FileDomain + SourceSrc);
+        }else{
+            $("#target").attr("src", (FileDomain + SourceSrc)).show();
+            $('#target').Jcrop({
+                bgOpacity: 0.5,
+                bgColor: 'black',
+                //boxWidth:640,
+                //boxHeight:400,
+                aspectRatio: @ViewData["T_Scale2"],
+                addClass: 'jcrop-dark',
+                onChange: showCoords,
+                onSelect: showCoords,
+                onRelease: clearCoords
+            },function(){
+                jcrop_api = this;
+            });
+        }
+    }
+    function clearCoords(){
+        $("#coords input").val("");
+    }
+    function showCoords(c){
+        $('#x1').val(c.x);
+        $('#y1').val(c.y);
+        $('#x2').val(c.x2);
+        $('#y2').val(c.y2);
+        $('#w').val(c.w);
+        $('#h').val(c.h);
+    }
+
+    $("#idSave").click(function(){
+        if(jcrop_api == undefined){
+            VMsg.AlertError("未上传图片");
+            return;
+        }
+        var o = jcrop_api.getWidgetSize();
+        var i = { Left:$('#x1').val(),Top:$('#y1').val(),Width:$('#w').val(),Height: $('#h').val() };
+
+        if(!i.Left ||!i.Top ||!i.Width ||!i.Height ){
+            VMsg.AlertError("请选择截取区域");
+            return;
+        }
+        PubAjax.Post("@Url.Action("CropImg", "Common")", {
+            p: SourceSrc,
+            x: parseInt(i.Left),
+            y: parseInt(i.Top),
+            w: parseInt(i.Width),
+            h: parseInt(i.Height),
+            pw: parseInt(o[0]),
+            ph: parseInt(o[1]),
+            tw:"@ViewData["T_Width"]",
+            th:"@ViewData["T_Height"]",
+            SavePath: "@ViewData["SavePath"]",
+            ext:"@ViewData["Ext"]"
+        }, function (r) {
+            if(r.code == "1"){
+                window.top.CropImgData = {cropImg:r.data,sourceImg:SourceSrc};
+                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                parent.layer.close(index);
+            }else
+                VMsg.AlertError("图片剪裁失败");
+        }, "json");
+    });
+</script>

@@ -1,0 +1,25 @@
+﻿{
+	"TokenConfigs":[
+		{
+			"DbConnectionStr":"server=101.200.201.139;uid=mob51;pwd=svn.mob51;database=TuoKe;",//数据库地址
+			"Exec":"0 0 0/2 * * ? *",//执行周期
+			"AppId":"wxfdc34341a8e8b5ca",//appid
+			"AppSecretKey":"eb9dcc7f16bd58e4188149c342135c9f",//app密钥
+			"TokenType":"client_credential"//token
+		},
+		{
+			"DbConnectionStr":"server=101.200.201.139;uid=mob51;pwd=svn.mob51;database=TuoKe;",//数据库地址
+			"Exec":"0 0 0/2 * * ? *",//执行周期
+			"AppId":"wxfdc34341a8e8b5ca",//appid
+			"AppSecretKey":"eb9dcc7f16bd58e4188149c342135c9f",//app密钥
+			"TokenType":"jsapi"//token
+		},
+		{
+			"DbConnectionStr":"server=101.200.201.139;uid=mob51;pwd=svn.mob51;database=TuoKe;",//数据库地址
+			"Exec":"0 0 0/2 * * ? *",//执行周期
+			"AppId":"wxfdc34341a8e8b5ca",//appid
+			"AppSecretKey":"eb9dcc7f16bd58e4188149c342135c9f",//app密钥
+			"TokenType":"wx_card"//token
+		}
+	],
+} 

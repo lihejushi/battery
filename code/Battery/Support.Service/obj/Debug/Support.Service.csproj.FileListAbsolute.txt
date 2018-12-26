@@ -1,0 +1,10 @@
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\Support.Service\obj\Debug\Support.Service.csprojResolveAssemblyReference.cache
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\Support.Service\obj\Debug\Support.Service.ProjectInstaller.resources
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\Support.Service\obj\Debug\Support.Service.TKServcie.resources
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\Support.Service\obj\Debug\Support.Service.csproj.GenerateResource.Cache
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\Support.Service\obj\Debug\Support.Service.csproj.CoreCompileInputs.cache
+D:\Family\ImproveElectricity\code\Battery\Support.Service\obj\Debug\Support.Service.csprojAssemblyReference.cache
+D:\Family\ImproveElectricity\code\Battery\Support.Service\obj\Debug\Support.Service.ProjectInstaller.resources
+D:\Family\ImproveElectricity\code\Battery\Support.Service\obj\Debug\Support.Service.TKServcie.resources
+D:\Family\ImproveElectricity\code\Battery\Support.Service\obj\Debug\Support.Service.csproj.GenerateResource.cache
+D:\Family\ImproveElectricity\code\Battery\Support.Service\obj\Debug\Support.Service.csproj.CoreCompileInputs.cache

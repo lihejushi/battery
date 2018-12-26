@@ -1,0 +1,252 @@
+﻿@using Battery.Model.X;
+@{
+    ViewBag.Title = "用户文档";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+
+            <div class="layui-input-inline">
+                <select name="searchActive" lay-filter="openState" id="searchActive">
+                    <option value="-100">全部</option>
+                    @if (ViewBag.ac != null && (ViewBag.ac as List<Actives>).Count > 0)
+                    {
+                        List<Actives> l_ud = ViewBag.ac as List<Actives>;
+                        for (int ac = 0; ac < l_ud.Count; ac++)
+                        {
+                            <option value="@l_ud[ac].ID">@l_ud[ac].ActiveName</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="searchActive" lay-filter="openState" id="searchDelete">
+                    <option value="0" selected>正常</option>
+                    <option value="1">删除</option>
+                </select>
+            </div>
+            @if (ViewBag.rid == -100)
+            {
+                @:<div class="layui-input-inline">
+                    <input type="text" name="searchName" id="searchName" placeholder="用户手机" class="layui-input">
+                @:</div>
+            }
+            else
+            {
+                <input type="hidden" name="searchName" id="searchName" class="layui-input" value="">
+            }
+            <input type="hidden" name="searchRid" id="searchRid" value="@ViewBag.rid">
+            <div class="layui-input-inline">
+                <input type="text" name="searchDocumentName" id="searchDocumentName" placeholder="文档名称" class="layui-input">
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Search(1)">&#xe615;</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="250">
+                <col width="250">
+                <col width="250">
+                <col width="180">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>用户姓名</th>
+                    <th>文档题目</th>
+                    <th>上传时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item, index) in items">
+                    <td>
+                        {{ item.UserName }}
+                    </td>
+                    <td>{{ item.DocumentTitle }}</td>
+                    <td>{{ item.UpdateTimeT }}</td>
+                    <td>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="Document(item.ID)">文档详情</a>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="DownDocument('UserFiles/Documents'+item.FilePath)">下载</a>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="Delete(item.ID,item.FilePath,item.RegID)">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="9">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        <div id="page" style="text-align: center;"></div>
+    </div>
+</form>
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var formList = new Vue({
+        el: '#formList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            Delete: function (id,fpath,rid) {
+                Delete(id, fpath, rid);
+            },
+            Document: function (id) {
+                Document(id);
+            },
+            SetUserState: function (id, state) {
+                SetUserState(id, state);
+            },
+            DownDocument: function (pth) {
+                DownDocument(pth);
+            },
+        }
+    })
+    $(function () {
+        //$("#tbody").show();
+        Search(1);
+    })
+    function Search(pIndex) {
+        var searchActive = $("#searchActive").val();
+        var searchDelete = $('#searchDelete').val();
+        var searchName = $('#searchName').val();
+        var searchDocumentName = $("#searchDocumentName").val();
+        var searchRid = $("#searchRid").val();
+
+        $.ajax({
+            type: 'POST',
+            url: location.href,
+            data: {
+                cmd: "GetList", username: searchName, documentname: searchDocumentName, rid: searchRid, aid: searchActive, delete: searchDelete,
+                PageStart: ((pIndex - 1) * pageLength + 1)
+            },
+            success: function (r) {
+                formList.items = r.data.Item2
+                formList.isShow = r.data.Item2.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    if (r.data.Item2.length > 0) {
+                        $("#tbody").show();
+                    }
+                    loadPage(r.data.Item1);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+
+    function Detail(id) {
+        VMsg.OpenWindow('@(Url.Action("UsersDetail", "Users"))?Id=' + id, '用户资料', {
+            area: ["750px", "600px;"],
+            end: function () {
+            }
+        });
+    }
+
+    function Document(id) {
+        VMsg.OpenWindow('@(Url.Action("UsersDocumentDetail", "ActiveAndPoint"))?documentID=' + id, '用户文件', {
+            area: ["750px", "600px;"],
+            end: function () {
+            }
+        });
+    }
+    function Delete(id,fpath,rid) {       
+        
+            $("#txtReson").val("");
+            VMsg.Form({
+                type: 1,
+                title: "删除文件",
+                content: `<div class ="layui-form layui-form-pane" style="margin:15px;"><div class ="layui-form-item layui-form-text">
+                   <div class ="layui-input-block">
+                                <textarea id="txtReson" placeholder="请输入原因" class ="layui-textarea"></textarea>
+                       </div> </div> </div>`,
+                btn: ['提交', '取消'],
+                area: ['480px'],
+                yes: function (index, layero) {
+                    var reson = $("#txtReson").val();
+                    if (reson.length < 1) {
+                        VMsg.AlertError("请输入删除原因");
+                        return false;
+                    }
+                    VMsg.Confirm("确定要删除该文件？", function () {
+                    PubAjax.Post("@Url.Action("DeleteUserDocument", "Users")",
+                        { "uId": id, "rid": rid, 'filepath': fpath,'Reason': reson }, function (r) {
+                            if (r.code == 1) {
+                                VMsg.AlertSuccess("操作成功", {
+                                    end: function () {
+                                        VMsg.Close();
+                                        Search(1);
+                                    }
+                                });
+                            } else {
+                                VMsg.AlertError(r.message);
+                            }
+                            });
+                    }, {});
+                }
+            });
+        
+    }
+    function NoCheck(id, state) {
+        $("#txtReson").val("");
+        VMsg.Form({
+            type: 1,
+            title: "审核不通过",
+            content: `<div class ="layui-form layui-form-pane" style="margin:15px;"><div class ="layui-form-item layui-form-text">
+                   <div class ="layui-input-block">
+                                <textarea id="txtReson" placeholder="请输入原因" class ="layui-textarea"></textarea>
+                       </div> </div> </div>`,
+            btn: ['提交', '取消'],
+            area: ['480px'],
+            yes: function (index, layero) {
+                var reson = $("#txtReson").val();
+                if (reson.length < 1) {
+                    VMsg.AlertError("请输入审核不通过原因");
+                    return false;
+                }
+                PubAjax.Post("@Url.Action("SetState", "Check")",
+                    { "id": id, 'state': state, Reason: reson }, function (r) {
+                        if (r.code == 1) {
+                            VMsg.AlertSuccess("操作成功", {
+                                end: function () {
+                                    VMsg.Close();
+                                    Search(1);
+                                }
+                            });
+                        } else {
+                            VMsg.AlertError(r.message);
+                        }
+                    });
+            }
+        });
+    }
+
+    function DownDocument(path) {
+        window.open("../../../../" + path);
+    }
+</script>

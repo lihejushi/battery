@@ -1,0 +1,17 @@
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.csproj.CoreCompileInputs.cache
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\bin\Debug\TuoKe.Model.dll
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\bin\Debug\TuoKe.Model.pdb
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.dll
+I:\wmb\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.pdb
+G:\wmb\files\Projects_back\翔天公司\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\bin\Debug\TuoKe.Model.dll
+G:\wmb\files\Projects_back\翔天公司\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\bin\Debug\TuoKe.Model.pdb
+G:\wmb\files\Projects_back\翔天公司\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.csprojResolveAssemblyReference.cache
+G:\wmb\files\Projects_back\翔天公司\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.csproj.CoreCompileInputs.cache
+G:\wmb\files\Projects_back\翔天公司\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.dll
+G:\wmb\files\Projects_back\翔天公司\work\Code\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.pdb
+E:\wmb\拓客\trunk\项目源码\TuoKe\TuoKe.Model\bin\Debug\TuoKe.Model.dll
+E:\wmb\拓客\trunk\项目源码\TuoKe\TuoKe.Model\bin\Debug\TuoKe.Model.pdb
+E:\wmb\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.csprojAssemblyReference.cache
+E:\wmb\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.csproj.CoreCompileInputs.cache
+E:\wmb\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.dll
+E:\wmb\拓客\trunk\项目源码\TuoKe\TuoKe.Model\obj\Debug\TuoKe.Model.pdb

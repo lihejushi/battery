@@ -1,0 +1,117 @@
+﻿@model List<Battery.Model.Sys_Menu>
+@{
+    ViewBag.Title = "菜单管理";
+}
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn" type="button" onclick="OpenWindow('@(Url.Action("EditMenu", "System", new { parId = 0 }))','添加菜单');"><i class="layui-icon">&#xe654;</i> 添加菜单</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="70">
+                <col width="120">
+                <col width="120">
+                <col width="140">
+                <col>
+                <col width="120">
+                <col width="80">
+                <col width="280">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>菜单名称</th>
+                    <th>图标</th>
+                    <th>浏览权限</th>
+                    <th>地址</th>
+                    <th>父菜单</th>
+                    <th>排序</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr id="nocontenttr">
+                        <td colspan="10">暂无数据</td>
+                    </tr>
+                }
+                @foreach (var menu in Model.Where(m => m.ParentId == 0))
+            {
+                    <tr>
+                        <td>
+                            <a href="javascript:void(0);" class="open" onclick="slidChild('@menu.Id')" id="@menu.Id">开启</a>
+                        </td>
+                        <td>@menu.Name</td>
+                        <td><i class="@menu.Icon"></i>@menu.Icon</td>
+                        <td>@menu.ViewPermission</td>
+                        <td>@menu.Url</td>
+                        <td>主菜单</td>
+                        <td>@menu.SortNo</td>
+                        <td>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini" onclick="OpenWindow('@(Url.Action("EditMenu", "System", new { MId=menu.Id }))','修改')">修改</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" onclick="OpenWindow('@(Url.Action("EditMenu", "System", new { ParId = menu.Id }))','添加子菜单');">添加子菜单</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-danger" onclick="DeleteMenu(@menu.Id);">删除</a>
+                        </td>
+                    </tr>
+                    foreach (var cMenu in Model.Where(m => m.ParentId == menu.Id))
+                    {
+                        <tr class="childTr" pid="@menu.Id" id="@cMenu.Name">
+                            <td>&nbsp;</td>
+
+                            <td>@cMenu.Name</td>
+                            <td><i class="@cMenu.Icon"></i>@cMenu.Icon</td>
+                            <td>@cMenu.ViewPermission</td>
+                            <td>@cMenu.Url</td>
+                            <td>@menu.Name</td>
+                            <td>@cMenu.SortNo</td>
+                            <td>
+                                <a href="Javascript:;" class="layui-btn layui-btn-mini" onclick="OpenWindow('@(Url.Action("EditMenu", "System", new { MId = cMenu.Id, ParId = menu.Id }))','修改菜单')">修改</a>
+                                <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-danger" onclick="DeleteMenu(@cMenu.Id);">删除</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</form>
+<script type="text/javascript">
+    $(function () {
+        $(".childTr").hide();
+    })
+    function slidChild(id) {
+        $("[pid='" + id + "']").toggle();
+        if ($("#" + id).hasClass("open")) {
+            $("#" + id).text("关闭").removeClass("open").addClass("closed");
+        }
+        else {
+            $("#" + id).text("开启").removeClass("closed").addClass("open");
+        }
+    }
+    function DeleteMenu(id) {
+        VMsg.Confirm("确认要删除吗？", function () {
+            PubAjax.Post("@Url.Action("DeleteMenu", "System")", {
+                "MenuId": id
+            }, function (r) {
+                if (r.code) {
+                    VMsg.AlertSuccess("执行成功", {
+                        end: function () {
+                            location.href = location.href;
+                        }
+                    });
+                } else {
+                    VMsg.AlertError("执行失败");
+                }
+            });
+        })
+    }
+</script>

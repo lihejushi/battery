@@ -1,0 +1,16 @@
+﻿<div class="box-body">
+    <div class="form-group">
+        @{var model = Battery.DAL.Sys.DictDAL.GetDict("RegistAgreement", "System");}
+        <textarea name="ConfigValue" class="post-data" id="_RegistAgreement" index="1" style="display:none;">@Html.Raw(model != null ? model.ConfigValue : "")</textarea>
+        <input type="hidden" name="GroupCode" class="post-data" value="@(model != null ? model.GroupCode : "RegistAgreement")" />
+        <input type="hidden" name="ConfigCode" class="post-data" value="@(model != null ? model.ConfigCode : "System")" />
+        <input type="hidden" name="SoryNo" class="post-data" value="@(model != null ? model.SortNo : 0)" />
+        <input type="hidden" name="Id" class="post-data" value="@(model != null ? model.Id : 0)" />
+    </div>
+</div>
+
+<div class="box-footer">
+    <div class="form-group">
+        <button type="submit" class="layui-btn" onclick="submit(1)">提交</button>
+    </div>
+</div>

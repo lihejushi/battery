@@ -1,0 +1,103 @@
+﻿@model Battery.Model.Sys_Menu
+@{
+    string PageAction = (Model == null || Model.Id <= 0) ? "CreateMenu" : "EditMenu";
+    ViewBag.Title = "编辑菜单";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+}
+<script src="~/Scripts/jquery.form.js"></script>
+
+<script>
+    var Action = "@PageAction";
+    $(function () {
+        if (Action == "CreateMenu") {
+            $("#Id").val("0");
+        }
+        $("#MenuForm").submit(function (e) {
+            e.preventDefault();
+            $(this).ajaxSubmit({
+                beforeSubmit: function (formArray, jqForm) {
+                    return true;
+                },
+                dataType: 'json',
+                success: function (r) {
+                    if (CheckJsonResult(r)) {
+                        if (r.code == 1) {
+                            VMsg.AlertSuccess("提交成功，正在跳转到管理页面", {
+                                end: function () {
+                                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                    parent.layer.close(index);
+                                    //location.href = "@Url.Action("PersonList", "System")";
+                                }
+                            });
+                        } else {
+                            VMsg.AlertError(r.message);
+                        }
+                    }
+                },
+                resetForm: false
+            });
+        });
+    })
+    function parChange() {
+        if ($("#ParentId").val() > 0) {
+            $(".trAdress").show();
+            $(".trImg").hide();
+        }
+        else {
+            $(".trAdress").hide();
+            $(".trImg").show();
+        }
+    }
+</script>
+<div style="padding:15px">
+    @using (Html.BeginForm(PageAction, "System", FormMethod.Post, new { id = "MenuForm", @class = "layui-form" }))
+    {
+        <div class="layui-form-item">
+            <label class="layui-form-label">菜单名称</label>
+            <div class="layui-input-block">
+                @Html.HiddenFor(m => m.Id)
+                @Html.TextBoxFor(m => m.Name, new { @class = "layui-input", lay_verify = "required|length", lay_vmax = "20", lay_vmin = "2", })
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">上级菜单</label>
+            <div class="layui-input-block">
+                @Html.DropDownListFor(m => m.ParentId, ViewBag.ParMenuItem as IEnumerable<SelectListItem>,
+           new { onchange = "parChange()", @class = "layui-input" })
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">显示权限</label>
+            <div class="layui-input-block">
+                @Html.TextBoxFor(m => m.ViewPermission, new { @class = "layui-input", lay_verify = "required" })
+                <span class="help-block ValidateMsgTip">要求填入形式：控制器|动作</span>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">地址 </label>
+            <div class="layui-input-block">
+                @Html.TextBoxFor(m => m.Url, new { @class = "layui-input", lay_verify = "required" })
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">排序 </label>
+            <div class="layui-input-block">
+                @Html.TextBoxFor(m => m.SortNo, new { @class = "layui-input", lay_verify = "required" })
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">备注 </label>
+            <div class="layui-input-block">
+                @Html.TextAreaFor(m => m.Memo, new { style = "width:100%x;height:100px", maxlength = 64, @class = "layui-input" })
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                @*<button type="reset" class="layui-btn layui-btn-primary">重置</button>*@
+            </div>
+        </div>
+    }
+
+</div>

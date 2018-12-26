@@ -1,0 +1,68 @@
+﻿@using Battery.Model.Battery
+@model List<Products>
+@{
+    ViewBag.Title = "手动添加产品";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+}
+<script src="~/Scripts/jquery.form.js"></script>
+<script>
+    $(function () {
+        $("#ProductPeopleAddForm").submit(function (e) {
+            e.preventDefault();
+            $(this).ajaxSubmit({
+                beforeSubmit: function (formArray, jqForm) {
+                    return true;
+                },
+                dataType: 'json',
+                success: function (r) {
+                    if (CheckJsonResult(r)) {
+                        if (r.code >0) {
+                            VMsg.AlertSuccess("提交成功，正在跳转到管理页面", {
+                                end: function () {
+                                    var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                    parent.layer.close(index);
+                                    //location.href = "@Url.Action("PeopleCodeAdd", "Product")";
+                                }
+                            });
+                        }
+                        else {
+                            var remain = "";
+                            switch (r.code) {
+                                case -1:
+                                    remain = "该产品编号已存在，请处理异常！";
+                                    break;
+                                case 0:
+                                    remain = "该产品状态异常，请处理！";
+                                    break;
+                                case -1:
+                                    remain = "该产品编号异常，请处理！";
+                                    break;
+                                default:
+                                    remain = "添加失败，请重试";
+                                    break;
+                            }
+                            alert(remain);
+                        }
+                    }
+                },
+                resetForm: false
+            });
+        });
+    })
+</script>
+@using (Html.BeginForm("PeopleCodeAdd", "Product", FormMethod.Post, new { id = "ProductPeopleAddForm", @class = "layui-form" }))
+{
+    <div class="layui-form-item">
+        <label class="layui-form-label">产品编码</label>
+        <input type="text" name="productnum" id="ProductNum" lay_verify="required|length" lay_vmax="42" lay_vmin="1" placeholder="请输入产品编码" class="layui-input" />
+    </div>
+
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+}
+

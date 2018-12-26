@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "系统后台登录";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+    Html.AddScriptParts(ResourceLocation.Foot, "~/Scripts/jquery.form.js");
+}
+<style type="text/css">
+    .login_info .login_main .login_form { box-shadow: 0 0 5px 5px #cdcdcd; }
+</style>
+@using (Html.BeginForm("Login", "Home", FormMethod.Post, new { id = "LoginForm" }))
+{
+<div class="login_info" style="background: 0 0;">
+    <div class="login_main layui-form" style="width: 370px;">
+        <div class="login_form">
+            <p class="p_tit">系统后台登录</p>
+            <p class="p_input"><input type="text" class= "layui-input" lay-verify="required|length" lay-vmax="16" lay-vmin="6" name="userName" id="userName" placeholder="请输入用户名"></p>
+            <p class="p_input"><input type="password" class = "layui-input" lay-verify="required|length" lay-vmax="16" lay-vmin="6" name="password" id="password" placeholder="请输入密码"></p>
+
+            <div class="btn_info">
+            <button class="layui-btn layui-btn-normal"  lay-submit="" lay-filter="demo1" type="submit" id="login_btn">登录</button>
+               </div>
+        </div>
+    </div>
+</div>
+}
+<script type="text/javascript">
+    $(function () {
+        $("#LoginForm").submit(function (e) {
+            e.preventDefault();
+            $(this).ajaxSubmit({
+                beforeSubmit: function (formArray, jqForm) {
+                    return true;
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.code == 1) {
+                        location.href = "@Url.Action("Index", "Home")";
+                    } else {
+                        VMsg.AlertError(data.message);
+                    }
+                },
+                resetForm: false
+            });
+        });
+    });
+</script>  

@@ -1,0 +1,179 @@
+﻿@{
+    ViewBag.Title = "后台用户";
+    //if ((int)ViewBag.RoleId> 0)
+    //{
+    //    Layout = "~/Views/Shared/_Layout.cshtml";
+    //}
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+@if ((int)ViewBag.RoleId == 0)
+{
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <div class="layui-input-inline" style="width:auto">
+                    <button class="layui-btn" type="button" onclick="EditPerson(0)"><i class="layui-icon">&#xe654;</i> 添加用户</button>
+                </div>
+            </div>
+            <div class="layui-inline">
+                @*<label class="layui-form-label">状态</label>*@
+                <div class="layui-input-inline">
+                    <select name="interest" lay-filter="aihao" id="searchState">
+                        <option value="">全部状态</option>
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="layui-input-inline">
+                    <input type="text" name="searchName" id="searchName" placeholder="搜索" class="layui-input">
+                </div>
+                <div class="layui-input-inline" style="width:auto">
+                    <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Search(1)">&#xe615;</button>
+                </div>
+            </div>
+            @*<div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <input type="text" name="searchName" id="searchName" placeholder="搜索" class="layui-input">
+                    </div>
+                </div>
+                <button class="layui-btn layui-btn-normal" type="button" onclick="Search(1)">搜索</button>*@
+        </div>
+    </div>
+}
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="150">
+                <col width="200">
+                <col>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>用户名</th>
+                    <th lay-data="width: 100px">姓名</th>
+                    <th lay-data="width: 100px">手机号</th>
+                    <th lay-data="width: 100px">邮箱</th>
+                    <th>联系地址</th>
+                    <th lay-data="width: 40px">状态</th>
+                    @if ((int)ViewBag.RoleId == 0)
+                    {
+                        <th style="width: 300px">操作</th>
+                    }
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item, index) in items">
+                    <td>{{ item.UserName }}</td>
+                    <td>{{ item.TrueName }}</td>
+                    <td>{{ item.MobilePhone }}</td>
+                    <td>{{ item.Email }}</td>
+                    <td>{{ item.Address }}</td>
+                    <td>{{ item.State==0?"禁用":"启用" }}</td>
+                    @if ((int)ViewBag.RoleId == 0)
+                    {
+                        <td>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="SetRole(item.Id)">分配角色</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="EditPerson(item.Id)">编辑</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini" v-bind:class="{'layui-btn-warm':item.State}" v-on:click="SetPersonState(item.Id,item.State==1?0:1)">{{ item.State==1?"禁用":"启用" }}</a>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-danger" v-on:click="SetPersonState(item.Id,-1)">删除</a>
+                        </td>
+                    }
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="6">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        <div id="page" style="text-align: center;"></div>
+    </div>
+</form>
+
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var formList = new Vue({
+        el: '#formList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            SetRole: function (id) {
+                SetRole(id);
+            },
+            EditPerson: function (id) {
+                EditPerson(id);
+            },
+            SetPersonState: function (id, state) {
+                SetPersonState(id, state);
+            }
+        }
+    })
+    $(function () {
+        $("#tbody").show();
+        Search(1);
+    })
+    function Search(pIndex) {
+        var searchState = $("#searchState").val();
+        var searchName = $('#searchName').val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("PersonList", "System")',
+            data: { cmd: "GetList", State: searchState, Name: searchName, PageLength: pageLength, PageStart: ((pIndex - 1) * pageLength + 1) },
+            success: function (r) {
+                formList.items = r.data.Item2
+                formList.isShow = r.data.Item2.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    loadPage(r.data.Item1);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+    function EditPerson(id) {
+        location.href = '@Url.Action("EditPerson", "System")?personId=' + id;
+    }
+    function SetRole(id) {
+        VMsg.OpenWindow('@(Url.Action("SetRole", "System"))?personId=' + id, '分配管理员角色', {
+            area: ["600px", "400px;"],
+            end: function () {
+                Search(1);
+            }
+        });
+    }
+    function SetPersonState(personId, state) {
+        var _state = state == 1 ? "启用" : (state == -1 ? "删除" : "禁用");
+        VMsg.Confirm("确定要【" + _state + "】该账号？", function () {
+            PubAjax.Post("@Url.Action("SetPersonState", "System")", {
+                "PersonId": personId, 'State': state
+            }, function (r) {
+                if (r.code) {
+                    VMsg.AlertSuccess("执行成功");
+                    Search(1);
+                } else {
+                    VMsg.AlertError("执行失败");
+                }
+            });
+        }, {});
+    }
+</script>

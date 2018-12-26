@@ -1,0 +1,110 @@
+﻿@model Battery.Model.Sys_Person
+@{
+    ViewBag.Title = "编辑后台用户";
+}
+<script src="~/Scripts/jquery.form.js"></script>
+@using (Html.BeginForm((Model == null || Model.Id <= 0) ? "CreatePerson" : "EditPerson", "System", FormMethod.Post, new { id = "PersonForm", @class = "layui-form" }))
+{ <div class="layui-row">
+      <div class="layui-col-xs12 layui-col-sm12 layui-col-md6">
+          <div class="layui-form-item">
+              <label class="layui-form-label">用户名</label>
+              <div class="layui-input-block">
+                  @Html.HiddenFor(m => m.Id)
+                  @Html.TextBoxFor(m => m.UserName, new { @class = "layui-input", lay_verify = "required|length", lay_vmax = "16", lay_vmin = "6", placeholder = "请输入用户名" })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">密码</label>
+              <div class="layui-input-block">
+                  @Html.PasswordFor(m => m.Password, new { @class = "layui-input", lay_verify = "length", lay_vmax = "16", lay_vmin = "6", @placeholder = "不修改密码时留空" })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">重复密码</label>
+              <div class="layui-input-block">
+                  @Html.Password("Password2", null, new { @class = "layui-input", lay_verify = "equal", lay_vcontrast = "Password", @placeholder = "不修改密码时留空" })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">姓名</label>
+              <div class="layui-input-block">
+                  @Html.TextBoxFor(m => m.TrueName, new { @class = "layui-input", lay_verify = "required|length", lay_vmax = "12", lay_vmin = "2" })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">手机号码</label>
+              <div class="layui-input-block">
+                  @Html.TextBoxFor(m => m.MobilePhone, new { @class = "layui-input", lay_verify = "required|phone" })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">联系地址</label>
+              <div class="layui-input-block">
+                  @Html.TextBoxFor(m => m.Address, new { @class = "layui-input", maxlength = 64 })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">邮箱</label>
+              <div class="layui-input-block">
+                  @Html.TextBoxFor(m => m.Email, new { @class = "layui-input", lay_verify = "required|email", maxlength = 64 })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <label class="layui-form-label">备注 </label>
+              <div class="layui-input-block">
+                  @Html.TextAreaFor(m => m.Memo, new { style = "width:100%x;height:100px", maxlength = 512, @class = "layui-input" })
+              </div>
+          </div>
+          <div class="layui-form-item">
+              <div class="layui-input-block">
+                  <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                  <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+              </div>
+          </div>
+      </div>
+    </div>}
+    <script type="text/javascript">
+        var Action = "@((Model == null || Model.Id <= 0) ? "CreatePerson" : "EditPerson")";
+        $(function () {
+            if (Action == "EditPerson") $("#UserName").attr("readonly", "readonly");
+            else {
+                $("#Id").val("0");
+                $("#Password").attr('lay-verify', 'required|length');
+            }
+            $("#PersonForm").submit(function (e) {
+                e.preventDefault();
+                var that = this;
+                PubAjax.Post("@Url.Action("CheckPersonName", "System")", {
+                    UserName: $("#UserName").val(),
+                    PersonId: parseInt($("#Id").val())
+                }, function (r) {
+                    if (r.code > 0) {
+                        VMsg.AlertError("该用户名已被占用，请重新输入！");
+                        return false;
+                    } else {
+                        $(that).ajaxSubmit({
+                            beforeSubmit: function (formArray, jqForm) {
+                                return true;
+                            },
+                            dataType: 'json',
+                            success: function (r) {
+                                if (CheckJsonResult(r)) {
+                                    if (r.code == 1) {
+                                        VMsg.AlertSuccess("提交成功，正在跳转到管理页面", {
+                                            end: function () {
+                                                location.href = "@Url.Action("PersonList", "System")";
+                                            }
+                                        });
+                                    } else {
+                                        VMsg.AlertError(r.message);
+                                    }
+                                }
+                            },
+                            resetForm: false
+                        });
+                    }
+                });
+
+            });
+        });
+    </script>

@@ -1,0 +1,287 @@
+﻿
+@{
+    ViewBag.Title = "用户管理";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+
+<div class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <div class="layui-input-inline">
+                <select name="searchState" lay-filter="searchState" id="searchState">
+                    <option value="-100">全部状态</option>
+                    <option value="0">正常</option>
+                    <option value="1">锁定</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <select name="searchSex" lay-filter="openState" id="searchSex">
+                    <option value="">全部</option>
+                    <option value="0">男</option>
+                    <option value="1">女</option>
+                </select>
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchName" id="searchName" placeholder="用户姓名" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchIdentity" id="searchIdentity" placeholder="身份证号" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" name="searchSchool" id="searchSchool" placeholder="毕业/就读院校" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <span>编剧</span><input type="checkbox" name="searchWriter" id="searchWriter" value="编剧"  checked="checked"/>
+                <span>演员</span><input type="checkbox" name="searchActor" id="searchActor" value="演员" />
+            </div>
+            <div class="layui-input-inline" style="width:auto">
+                <button class="layui-btn layui-btn-normal layui-icon" type="button" onclick="Search(1)">&#xe615;</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 表格数据 -->
+<form class="layui-form" action="" id="formList">
+    <div class="layui-form-item">
+        <table class="layui-table">
+            <colgroup>
+                <col width="200">
+                <col width="80">
+                <col width="250">
+                <col width="250">
+                <col width="250">
+                <col width="250">
+                <col width="80">
+                <col width="230">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>用户姓名</th>
+                    <th>性别</th>
+                    <th>身份</th>
+                    <th>手机号码</th>
+                    <th>职业</th>
+                    <th>毕业院校</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody v-show="isShow" id="tbody" style="display:none;">
+                <tr v-for="(item, index) in items">
+                    <td>
+                        {{ item.UserRealName }}
+                    </td>
+                    <td>{{ item.Sex==1?"女":"男" }}</td>
+                    <td>{{ item.CareerT }}</td>
+                    <td>{{ item.UserName}}</td>
+                    <td>{{ item.Occupation }}</td>
+                    <td>{{ item.Graduation }}</td>
+                    <td>{{ item.State==0?"正常":"锁定" }}</td>
+                    <td>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="Detail(item.ID)">查看</a>
+                        <a href="Javascript:;" class="layui-btn layui-btn-mini" v-on:click="Document(item.ID)">他的文档</a>
+                        <template v-if="item.State==0">
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="SetUserState(item.ID,1)">锁定</a>
+                        </template>
+                        <template v-else>
+                            <a href="Javascript:;" class="layui-btn layui-btn-mini layui-btn-normal" v-on:click="SetUserState(item.ID,0)">正常</a>
+                        </template>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody v-show="!isShow">
+                <tr>
+                    <td colspan="9">暂无数据</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页 -->
+        <div id="page" style="text-align: center;"></div>
+    </div>
+</form>
+<script type="text/javascript">
+    var pageLength = 20;//每页显示条数
+    var formList = new Vue({
+        el: '#formList',
+        data: {
+            items: null,
+            isShow: false
+        },
+        methods: {
+            Detail: function (id) {
+                Detail(id);
+            },
+            SetUserState: function (id, state) {
+                SetUserState(id, state);
+            },
+            Document: function (id) {
+                Document(id);
+            },
+        }
+    })
+    $(function () {
+        //$("#tbody").show();
+        Search(1);
+    })
+    function Search(pIndex) {
+        var searchState = $("#searchState").val();
+        var searchSex = $('#searchSex').val();
+        var searchName = $('#searchName').val();
+        var searchIdentity = $('#searchIdentity').val();
+        var searchSchool = $('#searchSchool').val();
+        var searchCareer = "";
+        if ($('#searchWriter').attr("checked") == "checked") {
+            //alert("1");
+            searchCareer = "1";
+        }
+        else {
+            //alert($('#searchWriter').attr("checked"));
+            searchCareer = "0";
+        }
+        if ($('#searchActor').attr("checked") == "checked") {
+            searchCareer = searchCareer+"1";
+        }
+        else {
+            searchCareer = searchCareer +"0";
+        }
+        searchCareer = searchCareer + "00000000";
+
+        $.ajax({
+            type: 'POST',
+            url: location.href,
+            data: {
+                cmd: "GetList", identity: searchIdentity, state: searchState, name: searchName, school: searchSchool, career: searchCareer, sex: searchSex, PageLength: pageLength,
+                PageStart: ((pIndex - 1) * pageLength + 1)
+            },
+            success: function (r) {
+                formList.items = r.data.Item2
+                formList.isShow = r.data.Item2.length > 0 ? true : false;
+                if (pIndex == 1) {
+                    if (r.data.Item2.length > 0) {
+                        $("#tbody").show();
+                    }
+                    loadPage(r.data.Item1);
+                }
+            }
+        });
+    }
+    function loadPage(pagecount) {
+        layui.use(['laypage'], function () {
+            laypage = layui.laypage;
+            //分页
+            laypage.render({
+                elem: 'page' //注意，这里的 page 是 ID，不用加 # 号
+              , count: pagecount //数据总数，从服务端得到
+                , limit: pageLength
+              , layout: ['count', 'prev', 'page', 'next']//自定义排版
+                , jump: function (obj, first) {
+                    if (!first) {
+                        Search(obj.curr);
+                    }
+                }
+            });
+        })
+    }
+
+    function Detail(id) {
+        VMsg.OpenWindow('@(Url.Action("UsersDetail", "Users"))?Id=' + id, '用户资料', {
+            area: ["750px", "600px;"],
+            end: function () {
+            }
+        });
+    }
+
+    function Document(id) {
+        location.href    = '@(Url.Action("UsersDocument", "Users"))?rid=' + id;
+
+        @*VMsg.OpenWindow('@(Url.Action("UsersDocument", "Users"))?Id=' + id, '用户文件', {
+            area: ["750px", "600px;"],
+            end: function () {
+            }
+        });*@
+    }
+    function SetUserState(id, state) {       
+        var _state = state == 1 ? "锁定" : "解锁";
+        if (state == 1) {
+            $("#txtReson").val("");
+            VMsg.Form({
+                type: 1,
+                title: "锁定用户",
+                content: `<div class ="layui-form layui-form-pane" style="margin:15px;"><div class ="layui-form-item layui-form-text">
+                   <div class ="layui-input-block">
+                                <textarea id="txtReson" placeholder="请输入原因" class ="layui-textarea"></textarea>
+                       </div> </div> </div>`,
+                btn: ['提交', '取消'],
+                area: ['480px'],
+                yes: function (index, layero) {
+                    var reson = $("#txtReson").val();
+                    if (reson.length < 1) {
+                        VMsg.AlertError("请输入锁定原因");
+                        return false;
+                    }
+                    PubAjax.Post("@Url.Action("SetUserState", "Users")",
+                        { "uId": id, 'state': state, 'Reason': reson }, function (r) {
+                            if (r.code == 1) {
+                                VMsg.AlertSuccess("操作成功", {
+                                    end: function () {
+                                        VMsg.Close();
+                                        Search(1);
+                                    }
+                                });
+                            } else {
+                                VMsg.AlertError(r.message);
+                            }
+                        });
+                }
+            });
+        }
+        else {
+            VMsg.Confirm("确定要【" + _state + "】该用户？", function () {
+                PubAjax.Post("@Url.Action("SetUserState", "Users")", {
+                    "uId": id, 'state': state,'Reason':""
+                }, function (r) {
+                    if (r.code) {
+                        VMsg.AlertSuccess("执行成功");
+                        Search(1);
+                    } else {
+                        VMsg.AlertError("执行失败");
+                    }
+                });
+            }, {});
+        }
+        
+    }
+    function NoCheck(id, state) {
+        $("#txtReson").val("");
+        VMsg.Form({
+            type: 1,
+            title: "审核不通过",
+            content: `<div class ="layui-form layui-form-pane" style="margin:15px;"><div class ="layui-form-item layui-form-text">
+                   <div class ="layui-input-block">
+                                <textarea id="txtReson" placeholder="请输入原因" class ="layui-textarea"></textarea>
+                       </div> </div> </div>`,
+            btn: ['提交', '取消'],
+            area: ['480px'],
+            yes: function (index, layero) {
+                var reson = $("#txtReson").val();
+                if (reson.length < 1) {
+                    VMsg.AlertError("请输入审核不通过原因");
+                    return false;
+                }
+                PubAjax.Post("@Url.Action("SetState", "Check")",
+                    { "id": id, 'state': state, Reason: reson }, function (r) {
+                        if (r.code == 1) {
+                            VMsg.AlertSuccess("操作成功", {
+                                end: function () {
+                                    VMsg.Close();
+                                    Search(1);
+                                }
+                            });
+                        } else {
+                            VMsg.AlertError(r.message);
+                        }
+                    });
+            }
+        });
+    }
+</script>

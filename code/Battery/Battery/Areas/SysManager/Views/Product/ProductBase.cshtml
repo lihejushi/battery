@@ -1,0 +1,88 @@
+﻿<div class="box-body">
+   
+        @{var model = Battery.DAL.Battery.ProductDAL.ProductBase(ViewBag.Id);}
+        @*<textarea name="ConfigValue" class="post-data" id="_Privacy" index="2" style="display:none;">@Html.Raw(model != null ? model.ConfigValue : "")</textarea>
+        <input type="hidden" name="GroupCode" class="post-data" value="@(model != null ? model.GroupCode : "Privacy")" />
+        <input type="hidden" name="ConfigCode" class="post-data" value="@(model != null ? model.ConfigCode : "System")" />
+        <input type="hidden" name="SoryNo" class="post-data" value="@(model != null ? model.SortNo : 0)" />
+        <input type="hidden" name="Id" class="post-data" value="@(model != null ? model.Id : 0)" />*@
+        <div class="layui-form-item" style="padding:15px">
+
+            <table class="layui-table" lay-even="" lay-size="lg">
+                <colgroup>
+                    <col width="150">
+                    <col>
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td align="right">编号</td>
+                        <td>@(model != null ? model.Num:"")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">型号</td>
+                        <td>@(model != null ? model.TypeName : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">电压(伏)</td>
+                        <td>@(model != null ? model.Voltage : 0)</td>
+                    </tr>
+                    <tr>
+                        <td align="right">出产地</td>
+                        <td>@(model != null ? model.Area : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">状态</td>
+                        <td>@(model != null ? model.StateT : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">生产厂家</td>
+                        <td>@(model != null ? model.Factory : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">调配区域</td>
+                        <td>@(model != null ? model.UserArea : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">适用类型</td>
+                        <td>
+                            @(model != null ? model.TypeFor : "")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right">激活日期</td>
+                        <td>
+                            @(model != null ? model.ActiveDate : "")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right">预计报废日期</td>
+                        <td>@(model != null ? model.ScrapDate : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">实际报废日期</td>
+                        <td>@(model != null ? model.RealScrapDate : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">保修期</td>
+                        <td>@(model != null ? model.Guarantee : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">回收人员姓名</td>
+                        <td>@(model != null ? model.BackStaffName : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">出厂日期</td>
+                        <td>@(model != null ? model.CreateTimeT : "")</td>
+                    </tr>
+                    <tr>
+                        <td align="right">出厂人员</td>
+                        <td>@(model != null ? model.LibraryName : "")</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div> 
+    </div>
+
+
+

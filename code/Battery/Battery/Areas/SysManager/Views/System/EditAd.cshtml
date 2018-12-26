@@ -1,0 +1,269 @@
+﻿@model Battery.Model.Sys.Sys_Ad
+@{
+    ViewBag.Title = "编辑广告";
+    Html.AddScriptParts(ResourceLocation.Head, "~/Scripts/vue.js");
+}
+<script src="~/Scripts/jquery.form.js"></script>
+@using (Html.BeginForm("EditAd", "System", FormMethod.Post, new { id = "AdForm", @class = "layui-form" }))
+{
+    <div class="layui-row">
+        <div class="layui-col-xs12 layui-col-sm12 layui-col-md6">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px">广告位置：<i style="color: red;">*</i>@Html.HiddenFor(m => m.Id)</label>
+                <div class="layui-input-inline" style="width: 300px;">
+                    <select id="AdType" name="AdType" class="form-control" @(Model.Id > 0 ? "disabled='disabled'" : "")>
+                        @foreach (var item in ViewBag.AdTypeList)
+                        {
+                            <option value="@item.Key" @(Model.AdType == item.Key ? "selected='selected'" : "")>@item.Value</option>
+                        }
+                    </select>
+
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px">广告标题：<i style="color: red;">*</i></label>
+                <div class="layui-input-inline" style="width: 300px;">
+                    <input type="text" name="Title" id="Title" class="layui-input" lay-verify="required|length" lay-vmin="1" lay-vmax="128" value="@(Model!=null?Model.Title:"")">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px">广告语：<i style="color: red;">*</i></label>
+                <div class="layui-input-inline" style="width: 300px;">
+                    <input type="text" name="Desc" id="Desc" class="layui-input" lay-verify="required|length" lay-vmin="1" lay-vmax="400" value="@(Model!=null?Model.Desc:"")">
+                </div>
+            </div>
+
+            @*<div class="layui-form-item">
+                    <label class="layui-form-label" style="width:150px">广告链接：<i style="color: red;">*</i></label>
+                    <div class="layui-input-inline" style="width: 300px;">
+                        <input type="text" name="Url" id="Url" class="layui-input" lay-verify="required|length" lay-vmin="1" lay-vmax="128" value="@(Model!=null?Model.Url:"")">
+                    </div>
+                </div>*@
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px">选择链接：<i style="color: red;">*</i></label>
+                <div class="layui-input-inline" style="width: 300px;">
+                    <input type="text" name="Url" id="Url" class="layui-input" style="float:left;display:inline-block;width: 208px;background-color: #f1f1f1;" lay-verify="required" lay-vmin="1" readonly lay-vmax="128" value="@Battery.Framework.Tools.AppUrlHelper.GetUrl(Model!=null?Model.NavJson:"")">
+                    <button type="button" onclick="selectLink(this)" class="layui-btn layui-btn-normal">选择链接</button>
+                    @Html.HiddenFor(m => m.NavJson)
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px">图片：<i style="color: red;">*</i></label>
+                <div class="layui-input-inline" style="width: 300px;">
+                    @*<button type="button" class="layui-btn layui-btn-normal" id="up_btn" onclick="CropImg(200,90)">上传图片</button>*@
+                    <div class="layui-upload">
+                        <div class="only_upimg_box" id="up_btn">
+                            <div class="only_upimg_btn" @(Model != null ? !String.IsNullOrEmpty(Model.ImgUrl) ? "style=display:none" : "" : "")><p class="layui-icon">&#xe64a;</p><p>上传图片</p></div>
+                            <div class="only_upimg_imgbox" @(Model != null ? !String.IsNullOrEmpty(Model.ImgUrl) ? "" : "style=display:none" : "style=display:none")>
+                                <img id="img_ImgUrl" src="@FileDomain@(Model != null ? Model.ImgUrl : "")">
+                                <input type="hidden" name="ImgUrl" id="ImgUrl" value="@(Model != null ? Model.ImgUrl : "")">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*<div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px"></label>
+                <div class="layui-input-inline" style="width: 300px;">
+                    <div id="layer-photos-demo" class="layer-photos-demo">
+                        <img id="img_ImgUrl" layer-src="@(Model!=null?FileDomain+Model.ImgUrl:"")" src="@(Model!=null?FileDomain+Model.ImgUrl:"")" width="300">
+                        <input type="hidden" name="ImgUrl" id="ImgUrl" value="@(Model!=null?Model.ImgUrl:"")">
+                    </div>
+                </div>
+            </div>*@
+
+
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width:150px;"></label>
+                <div class="layui-input-inline">
+                    <button class="layui-btn" lay-submit="" lay-filter="demo1">立即提交</button>
+                </div>
+                <div class="layui-input-inline" style="padding-left: 8px;">
+                    <a class="layui-btn" href="javascript:;" onclick="GoList();">返回列表</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<style type="text/css">
+    .layui-upload-img {
+        width: 92px;
+        height: 92px;
+        margin: 0;
+    }
+
+    .only_upimg_box {
+        position: relative;
+        display: inline-block;
+        width: 92px;
+        height: 92px;
+        cursor: pointer;
+    }
+
+        .only_upimg_box .only_upimg_btn {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            border: 1px dashed #ddd;
+            box-sizing: border-box;
+            text-align: center;
+            color: #999;
+        }
+
+            .only_upimg_box .only_upimg_btn .layui-icon {
+                font-size: 24px;
+                color: #999;
+                padding-top: 24px;
+            }
+
+        .only_upimg_box .only_upimg_imgbox {
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
+            .only_upimg_box .only_upimg_imgbox img {
+                display: inline-block;
+                width: 100%;
+                height: 100%;
+            }
+</style>
+
+<script>
+    layui.use(['element', 'upload', 'layer', 'form'], function (elem) {
+        var $ = layui.jquery
+        , upload = layui.upload
+        , layer = layui.layer
+        , form = layui.form;
+
+        //执行实例
+        var uploadUrl = "@Url.Action("UpImage", "Common", new { area = "" })";
+        var resulturl = "";
+        var uploadInst = upload.render({
+            elem: '#up_btn' //绑定元素
+          , url: uploadUrl //上传接口
+          , accept: 'images' //允许上传的文件类型
+          , size: 2 * 1024 * 1024 //最大允许上传的文件大小
+          , before: function (obj) {
+              //预读本地文件示例，不支持ie8
+              obj.preview(function (index, file, result) {
+                  //$('.only_upimg_imgbox').show();
+                  //$('#img_ImgUrl').attr('src', result); //图片链接（base64）
+                  //$('.only_upimg_btn').hide();
+                  resulturl = result;
+              });
+          }
+          , done: function (json, status, data) {
+              //上传完毕回调
+              if (json.code == "1") {
+                  $('.only_upimg_imgbox').show();
+                  $('#img_ImgUrl').attr('src', resulturl); //图片链接（base64）
+                  $('.only_upimg_btn').hide();
+                  $("#ImgUrl").val(json.data);
+              } else
+                  {
+                  VMsg.AlertError(json.message);
+              }
+          }
+          , error: function () {
+              //请求异常回调
+          }
+        });
+    });
+
+    @*function CropImg(gW, gH) {
+        OpenCropimg(gW, gH, function () {
+            var G = window.top.CropImgData;
+            if (G) {
+                $("#ImgUrl").val(G.cropImg);
+                $('#img_ImgUrl').attr('src', FileDomain + G.cropImg);
+                $("#img_ImgUrl").prop("layer-src", "@FileDomain" + G.cropImg);
+            }
+        });
+    }*@
+
+    $(function () {
+        $("#AdForm").submit(function (e) {
+            e.preventDefault();
+            //$('#AdType').attr('disabled', false);
+            if ($("#ImgUrl").val().length == 0) {
+                VMsg.AlertError("请上传图片");
+                return false;
+            }
+            $(this).ajaxSubmit({
+                beforeSubmit: function (formArray, jqForm) {
+                    return true;
+                },
+                dataType: 'json',
+                success: function (r) {
+                    if (CheckJsonResult(r)) {
+                        if (r.code == 1) {
+                            VMsg.AlertSuccess("提交成功，正在跳转到管理页面", {
+                                end: function () {
+                                    GoList();
+                                }
+                            });
+                        } else {
+                            VMsg.AlertError(r.message);
+                        }
+                    }
+                },
+                resetForm: false
+            });
+        });
+
+        var adType = '@(Model != null ? Model.AdType : 0)';
+        if (adType != 0) {
+            $('#AdType').val(adType).attr('disabled', 'disabled');
+        }
+
+        //if (navJson.length > 0) {
+        //    $('#AdNavJson').append(GetNavjsonString(JSON.parse(navJson)));
+        //    navJson = JSON.parse(navJson);
+        //} else {
+        //    navJson = undefined;
+        //}
+    });
+
+    function GoList() {
+        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+        parent.layer.close(index);
+    }
+
+    var navJson = '@(Html.Raw(Model != null ? Model.NavJson : ""))';
+    function selectLink(e) {
+        OpenSelectNav(navJson, {}, function () {
+            var G = window.top.Common_NavData;
+            var showurl = "";
+            if (G.NavContentType == "ZDY") {
+                showurl = G.NavContentValue;
+            }
+            else if (G.NavContentType == "APP")
+            {
+                if (G.NavLinkType == "Nav")
+                {
+                    showurl = "@ConfigHelper.GetBranch("AppDomain")" + G.NavUrl;
+                }
+                else
+                {
+                    showurl = ("@ConfigHelper.GetBranch("AppDomain")" + G.NavUrl).replace("{0}",G.NavValue);
+                }
+            }
+            $('#Url').val(showurl);
+            navJson = JSON.stringify(G);
+            $('#NavJson').val(JSON.stringify(G));
+        });
+    }
+</script>

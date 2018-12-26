@@ -1,0 +1,12 @@
+D:\Family\ImproveElectricity\code\Battery\Battary.Model\bin\Debug\Battery.Model.dll
+D:\Family\ImproveElectricity\code\Battery\Battary.Model\bin\Debug\Battery.Model.pdb
+D:\Family\ImproveElectricity\code\Battery\Battary.Model\obj\Debug\Battery.Model.csproj.CoreCompileInputs.cache
+D:\Family\ImproveElectricity\code\Battery\Battary.Model\obj\Debug\Battery.Model.dll
+D:\Family\ImproveElectricity\code\Battery\Battary.Model\obj\Debug\Battery.Model.pdb
+D:\Family\ImproveElectricity\code\Battery\Battary.Model\obj\Debug\Battery.Model.csprojAssemblyReference.cache
+I:\wmb\other\Preject\Battery\code\Battery\Battary.Model\bin\Debug\Battery.Model.dll
+I:\wmb\other\Preject\Battery\code\Battery\Battary.Model\bin\Debug\Battery.Model.pdb
+I:\wmb\other\Preject\Battery\code\Battery\Battary.Model\obj\Debug\Battery.Model.csprojAssemblyReference.cache
+I:\wmb\other\Preject\Battery\code\Battery\Battary.Model\obj\Debug\Battery.Model.csproj.CoreCompileInputs.cache
+I:\wmb\other\Preject\Battery\code\Battery\Battary.Model\obj\Debug\Battery.Model.dll
+I:\wmb\other\Preject\Battery\code\Battery\Battary.Model\obj\Debug\Battery.Model.pdb

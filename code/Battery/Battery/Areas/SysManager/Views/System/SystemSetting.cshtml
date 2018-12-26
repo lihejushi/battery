@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "系统设置";
+}
+
+<div class="layui-tab layui-tab-card" style="min-height:480px">
+    <ul class="layui-tab-title">
+        <li class="layui-this">注册协议</li>
+        <li>隐私政策</li>
+        <li>客服电话</li>
+        <li>关于我们</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 100px;width:800px">
+        <div class="layui-tab-item layui-show" id="tab_1">@Html.Partial("RegistAgreement")</div>
+        <div class="layui-tab-item" id="tab_2">@Html.Partial("Privacy")</div>
+        <div class="layui-tab-item" id="tab_3">@Html.Partial("KefuPhone")</div>
+        <div class="layui-tab-item" id="tab_4">@Html.Partial("About")</div>
+    </div>
+</div>
+
+<script>
+    //注意：选项卡 依赖 element 模块，否则无法进行功能性操作
+    layui.use(['element', "layedit"], function () {
+        var element = layui.element;
+        var layedit = layui.layedit;
+        layedit.set({
+            height: 260, //设置编辑器高度
+            uploadImage: {
+                url: '@Url.Action("LayerEditUpImage", "Common", new { area = "" })' //接口url
+              , type: 'post' //默认post
+            }
+        });
+
+        var _RegistAgreement = layedit.build("_RegistAgreement");
+        layedit.sync(_RegistAgreement);
+        var _Privacy = layedit.build("_Privacy");
+        layedit.sync(_Privacy);
+        var _About = layedit.build("_About");
+        layedit.sync(_About);
+
+        $(".layui-tab-title > li:eq(0)").attr("class", "layui-this");
+    });
+
+    function submit(tabId) {
+        if (tabId == 3) {
+            var kefuphone = $("#KefuPhone").val();
+            if (kefuphone.length == 0) {
+                VMsg.AlertError("请输入客服电话");
+                return false;
+            }
+            var reg = /(^(((\()?\d{2,4}(\))?[-(\s)*]){0,2})?(\d{7,8})$)|(^((\(\d{3}\))|(\d{3}\-))?(13\d{9}$)|(15\d{9}$)|(18\d{9}$)|(17\d{9}$)|(147\d{8}$))/;
+            if (!reg.test(kefuphone)) {
+                VMsg.AlertError("请输入正确的电话号码");
+                return false;
+            }
+        }
+        var data = getData(tabId);
+        $.post('@Url.Action("SaveSysDict", "System")', { data: JSON.stringify(data), R: Math.random() }, function (r) {
+            if (CheckJsonResult(r)) {
+                if (r.code == 1) {
+                    VMsg.AlertSuccess("提交成功", {
+                        end: function () {
+                            //var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            //parent.layer.close(index);
+                        }
+                    });
+                }
+                else {
+                    VMsg.AlertError(r.message);
+                }
+            }
+        }, 'json');
+    }
+    //获取提交数据
+    function getData(tabId) {
+        var data = [];
+        $('#tab_' + tabId).each(function (i, item) {
+            var model = {};
+            $(item).find('.post-data').each(function (j, item1) {
+                var $current = $(item1);
+                if (typeof($current.attr('index'))=="undefined") {
+                    model[$current.attr('name')] = $current.val();
+                }
+                else {
+                    model[$current.attr('name')] = layui.layedit.getContent($current.attr('index'));
+                }
+            });
+            data[i] = model;
+        });
+        return data;
+    }
+</script>
+
+

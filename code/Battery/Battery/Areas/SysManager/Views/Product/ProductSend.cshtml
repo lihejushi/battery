@@ -1,0 +1,72 @@
+﻿@using Battery.Model.Battery
+<div class="box-body">
+
+    @{var model = Battery.DAL.Battery.ProductDAL.ProductSend(ViewBag.Id); }
+    @*<textarea name="ConfigValue" class="post-data" id="_Privacy" index="2" style="display:none;">@Html.Raw(model != null ? model.ConfigValue : "")</textarea>
+        <input type="hidden" name="GroupCode" class="post-data" value="@(model != null ? model.GroupCode : "Privacy")" />
+        <input type="hidden" name="ConfigCode" class="post-data" value="@(model != null ? model.ConfigCode : "System")" />
+        <input type="hidden" name="SoryNo" class="post-data" value="@(model != null ? model.SortNo : 0)" />
+        <input type="hidden" name="Id" class="post-data" value="@(model != null ? model.Id : 0)" />*@
+    <div class="layui-form-item" style="padding:15px">
+
+        <table class="layui-table" lay-even="" lay-size="lg">
+            <colgroup>
+                <col width="150">
+                <col>
+            </colgroup>
+            <tr>
+                <th>
+                    编号
+                </th>
+                <th>
+                    产品
+                </th>
+                <th>
+                    出发地
+                </th>
+                <th>
+                    目的地
+                </th>
+                <th>
+                    情况
+                </th>
+                <th>
+                    说明
+                </th>
+                <th>
+                    运输方式
+                </th>
+                <th>
+                    发货时间
+                </th>
+                <th>
+                    收货时间
+                </th>
+                <th>
+                    发货店编号
+                </th>
+                <th>
+                    收货店编号
+                </th>
+            </tr>
+            <tbody>
+                @foreach (ProductSend item in model)
+                {
+                <tr>
+                    <td align="right">@item.ID</td>
+                    <td>@item.Num</td>
+                    <td>@item.SourcePlace</td>
+                    <td>@item.TargetPlace</td>
+                    <td>@(item.Type == 0 ? "出厂" : "调配")</td>
+                    <td>@item.Introduce</td>
+                    <td>@(item.Transport == 0 ? "人工" : (item.Transport == 1 ? "物流" : (item.Transport == 2 ? "快递" : (item.Transport == 3 ? "其它" : ""))))</td>
+                    <td>@(item.TransportTime.ToShortDateString())</td>
+                    <td>@(item.AcceptTime.ToShortDateString())</td>
+                    <td>@(item.TransportStoreID.ToString())</td>
+                    <td>@(item.AcceptStoreID.ToString())</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

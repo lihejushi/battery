@@ -1,0 +1,2 @@
+D:\Family\SiChuan\Preject\HelpYoung\HelpYoung.Framework.Core\obj\Debug\HelpYoung.Framework.Core.csprojAssemblyReference.cache
+D:\Family\SiChuan\Preject\HelpYoung\HelpYoung.Framework.Core\obj\Debug\HelpYoung.Framework.Core.csproj.CoreCompileInputs.cache

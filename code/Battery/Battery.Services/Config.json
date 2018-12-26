@@ -1,0 +1,15 @@
+﻿{
+  "SynchronizationsProductInfoConfigs": {
+    "DbConnectionStr": "server=101.200.201.139;uid=mob51;pwd=svn.mob51;database=TuoKe;",
+    "Exec": "0 0/1 * * * ? ",
+    "Interval": "10 ",
+    "TotelCount": "5 "
+  },
+  "DealWithRequestFileConfigs": {
+    "DbConnectionStr": "server=101.200.201.139;uid=mob51;pwd=svn.mob51;database=TuoKe;",
+    "Exec": "0 0/1 * * * ? ",
+    "CountToFilePath": "I:\\wmb\\work\\Code\\拓客\\writefile",
+    "DesKey": "YiZhong_TuoKe",
+    "DesIV": "YiZhong_TuoKe"
+  }
+}

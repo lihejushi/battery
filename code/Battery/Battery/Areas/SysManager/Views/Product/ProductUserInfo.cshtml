@@ -1,0 +1,79 @@
+﻿@model Battery.Model.Battery.ProductUserInfo
+@using Battery.Model.Battery;
+@{
+    ViewBag.Title = "用户资料";
+    Layout = "~/Views/Shared/_Manager_LayoutPage.cshtml";
+}
+<script src="~/Scripts/jquery.form.js"></script>
+@using (Html.BeginForm("EditProductUserInfo", "Product", FormMethod.Post, new { id = "ProductUserInfoForm", @class = "layui-form" }))
+{<div class="layui-row">
+     <div class="layui-col-xs12 layui-col-sm12 layui-col-md6" style="width:90%;margin-top:20px">
+         <div class="layui-form-item">
+             <label class="layui-form-label">产品编号</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.Num) == false ? Model.Num : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">用户姓名</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.UserName) == false ? Model.UserName : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">用户电话</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.UserTel) == false ? Model.UserTel : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">工作单位</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.WorkUnit) == false ? Model.WorkUnit : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">年龄</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (Model.Age != null ? Model.Age.ToString() : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">学历</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.Education) == false ? Model.Education : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">车辆用途</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.UseBike) == false ? Model.UseBike : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">了解产品渠道</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.KonwStyle) == false ? Model.KonwStyle : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">用户微信</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.UserWeChat) == false ? Model.UserWeChat : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">用户QQ</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.UserQQ) == false ? Model.UserQQ : "") : "")
+             </div>
+         </div>
+         <div class="layui-form-item">
+             <label class="layui-form-label">用户EMail</label>
+             <div class="layui-input-block">
+                 @(Model != null ? (string.IsNullOrEmpty(Model.UserEMail) == false ? Model.UserEMail : "") : "")
+             </div>
+         </div>
+        
+     </div>
+    </div>}
